@@ -1,0 +1,10 @@
+
+*.swp
+ref/
+__pycache__/
+test_x
+test_y
+train_x
+train_y
+pred_y
+pred_y_init
