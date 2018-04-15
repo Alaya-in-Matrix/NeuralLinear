@@ -54,7 +54,7 @@ def chol_inv(L):
     return chol_solve(L, np.eye(L.shape[0]))
 
 class DSK_GP:
-    def __init__(self, train_x, train_y, layer_sizes, activations):
+    def __init__(self, train_x, train_y, layer_sizes, activations, bfgs_iter=500):
         self.train_x   = np.copy(train_x)
         self.train_y   = np.copy(train_y)
         self.dim       = self.train_x.shape[0]
@@ -63,6 +63,8 @@ class DSK_GP:
         self.train_y.reshape(1, train_y.size)
         self.num_param = self.nn.num_param() + 1
         self.nlz       = np.inf
+        self.bfgs_iter  = bfgs_iter;
+        self.debug = False
 
     def log_likelihood(self, theta):
         # TODO: verification of this log_likelihood
@@ -82,6 +84,7 @@ class DSK_GP:
         data_fit_2 = np.dot(self.train_y, data_fit_2)
         data_fit   = (data_fit_1 - data_fit_2) / sn2;
 
+
         # model complexity
         s, logDetA       = np.linalg.slogdet(A)
         model_complexity = (num_train - m) * (2 * log_sn) + logDetA;
@@ -90,7 +93,6 @@ class DSK_GP:
         if(neg_likelihood < self.nlz):
             self.nlz   = neg_likelihood
             self.theta = theta
-        print(self.nlz.reshape(self.nlz.size)[0])
         return neg_likelihood
 
     def fit(self, theta):
@@ -98,7 +100,7 @@ class DSK_GP:
         loss       = self.log_likelihood
         gloss      = grad(loss)
         # fmin_cg(loss, theta0, gloss, maxiter = 100)
-        fmin_l_bfgs_b(loss, theta0, gloss, maxfun = 500, m=100, iprint=50)
+        fmin_l_bfgs_b(loss, theta0, gloss, maxiter = self.bfgs_iter, m=100, iprint=10)
 
         # pre-computation
         log_sn  = self.theta[0]
