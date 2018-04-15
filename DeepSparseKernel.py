@@ -109,6 +109,7 @@ class DSK_GP:
         model_complexity = (num_train - m) * (2 * log_sn) + logDetA;
 
         neg_likelihood   = 0.5 * (data_fit + model_complexity)
+        print(neg_likelihood)
         if(neg_likelihood < self.nlz):
             self.nlz   = neg_likelihood
             self.theta = theta
@@ -118,8 +119,8 @@ class DSK_GP:
         theta0     = theta.copy()
         loss       = self.log_likelihood
         gloss      = grad(loss)
-        # best_theta = fmin_cg(loss, theta0, gloss, maxiter = 1000)
-        (best_theta, f, d) = fmin_l_bfgs_b(loss, theta0, gloss, maxfun = 1000, m=100, iprint=99)
+        best_theta = fmin_cg(loss, theta0, gloss, maxiter = 100)
+        # (best_theta, f, d) = fmin_l_bfgs_b(loss, theta0, gloss, maxfun = 1000, m=100, iprint=99)
 
         # pre-computation
         log_sn  = theta[0]
@@ -153,14 +154,14 @@ def f(x):
     # return 0.05 * xsum**2 + np.sin(xsum);
 
 dim       = 1
-num_train = 6666
+num_train = 666
 num_test  = 1000
 sn        = 1e-2
 train_x   = 5 * np.random.randn(dim, num_train)
 train_y   = f(train_x) + sn * np.random.randn(1, num_train)
 test_x    = np.linspace(-50, 50, num_test).reshape(dim, num_test);
 test_y    = f(test_x).reshape(1, num_test);
-gp        = DSK_GP(train_x, train_y, [10], [tanh])
+gp        = DSK_GP(train_x, train_y, [80], [tanh])
 
 
 theta   = np.random.randn(gp.num_param)
