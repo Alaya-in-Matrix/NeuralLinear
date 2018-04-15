@@ -98,7 +98,7 @@ class DSK_GP:
         loss       = self.log_likelihood
         gloss      = grad(loss)
         # fmin_cg(loss, theta0, gloss, maxiter = 100)
-        fmin_l_bfgs_b(loss, theta0, gloss, maxfun = 1000, m=100)
+        fmin_l_bfgs_b(loss, theta0, gloss, maxfun = 500, m=100)
 
         # pre-computation
         log_sn  = self.theta[0]
@@ -107,39 +107,44 @@ class DSK_GP:
         Phi     = self.nn.predict(w, train_x)
         m       = Phi.shape[0]
         A       = sn2 * np.eye(m) + np.dot(Phi, Phi.T)
-        self.LA = np.linalg.cholesky(A)
+        LA = np.linalg.cholesky(A)
 
         alpha      = self.train_y.copy()
         alpha      = Phi.dot(alpha.T)
-        alpha      = chol_solve(self.LA, alpha)
+        alpha      = chol_solve(LA, alpha)
         alpha      = Phi.T.dot(alpha)
         alpha      = self.train_y.T - alpha;
         alpha      = alpha / sn2;
         alpha      = Phi.dot(alpha)
         self.alpha = alpha
 
+        Qmm    = Phi.dot(Phi.T)
+        self.B = (Qmm - Qmm.dot(chol_solve(LA, Qmm))) / sn2
+
     def predict(self, test_x):
         log_sn   = self.theta[0]
         w        = self.theta[1:]
         Phi_test = self.nn.predict(w, test_x)
         py       = Phi_test.T.dot(self.alpha)
-        return py
+        ps2      = np.diagonal(np.exp(2 * log_sn) + Phi_test.T.dot(Phi_test) - Phi_test.T.dot(self.B.dot(Phi_test)))
+        np.savetxt('sf2', np.diagonal(Phi_test.T.dot(Phi_test)))
+        return py, ps2
 
 
 def f(x):
     xsum = x.sum(axis=0);
-    return np.sign(xsum)
-    # return 0.05 * xsum**2 + np.sin(xsum);
+    # return np.sign(xsum)
+    return 0.05 * xsum**2 + np.sin(xsum);
 
 dim       = 1
-num_train = 666
+num_train = 600
 num_test  = 1000
-sn        = 1e-2
+sn        = 1e-1
 train_x   = 5 * np.random.randn(dim, num_train)
 train_y   = f(train_x) + sn * np.random.randn(1, num_train)
-test_x    = np.linspace(-50, 50, num_test).reshape(dim, num_test);
+test_x    = np.linspace(-30, 60, num_test).reshape(dim, num_test);
 test_y    = f(test_x).reshape(1, num_test);
-gp        = DSK_GP(train_x, train_y, [10, 10], [relu, relu])
+gp        = DSK_GP(train_x, train_y, [50, 50], [tanh, tanh])
 
 
 theta   = np.random.randn(gp.num_param)
@@ -147,7 +152,18 @@ gloss   = grad(gp.log_likelihood)
 g_theta = gloss(theta)
 
 gp.fit(theta)
-py = gp.predict(test_x)
+py, ps2 = gp.predict(test_x)
 
-plt.plot(test_x[0], py.T[0])
+plt.plot(test_x[0], py.T[0], 'b')
+plt.plot(test_x[0], py.T[0] + np.sqrt(ps2.T[0]), 'g')
+plt.plot(test_x[0], py.T[0] - np.sqrt(ps2.T[0]), 'g')
+plt.plot(train_x, train_y, 'r+')
 plt.show()
+
+np.savetxt('train_x', train_x)
+np.savetxt('train_y', train_y)
+np.savetxt('test_x', test_x)
+np.savetxt('test_y', test_y)
+np.savetxt('pred_y', py)
+np.savetxt('pred_s', np.sqrt(ps2))
+np.savetxt('theta', gp.theta)
