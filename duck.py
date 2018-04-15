@@ -76,6 +76,7 @@ def predict(w, test_x):
 
     alpha = train_y.copy()
     alpha = Phi.dot(alpha.T)
+    print(alpha.reshape(alpha.size)[0:10])
     alpha = chol_solve(LA, alpha)
     alpha = Phi.T.dot(alpha)
     alpha = train_y.T - alpha;
@@ -86,38 +87,38 @@ def predict(w, test_x):
     py       = Phi_test.T.dot(alpha)
     return py
 
-gloss  = grad(loss)
-print("Start")
-w0     = np.random.randn((dim+1) * m)
-loss0  = loss(w0)
-gloss0 = gloss(w0)
+# gloss  = grad(loss)
+# print("Start")
+# w0     = np.random.randn((dim+1) * m)
+# loss0  = loss(w0)
+# gloss0 = gloss(w0)
 
-# epsi = 1e-3
-# for i in range(w0.size):
-#     w1     = np.copy(w0)
-#     w2     = np.copy(w0)
-#     w1[i] += epsi
-#     w2[i] -= epsi
-#     gdiff = (loss(w1) - loss(w2))/(2*epsi)
-#     print([gdiff[0][0], gloss0[i]])
-
-
-py0     = predict(w0, test_x)
-best_w  = fmin_cg(loss, w0, gloss, maxiter=100)
-py_best = predict(best_w, test_x);
-
-print(py_best.shape)
-print(test_x.shape)
-print(test_y.shape)
-
-plt.plot(test_x[0], py_best.T[0])
-plt.plot(test_x[0], test_y.reshape(1, num_test)[0])
-plt.show()
+# # epsi = 1e-3
+# # for i in range(w0.size):
+# #     w1     = np.copy(w0)
+# #     w2     = np.copy(w0)
+# #     w1[i] += epsi
+# #     w2[i] -= epsi
+# #     gdiff = (loss(w1) - loss(w2))/(2*epsi)
+# #     print([gdiff[0][0], gloss0[i]])
 
 
-np.savetxt("train_x", train_x.T)
-np.savetxt("train_y", train_y)
-np.savetxt("test_x", test_x.T)
-np.savetxt("test_y", test_y)
-np.savetxt("pred_y_init", py0)
-np.savetxt("pred_y", py_best)
+# py0     = predict(w0, test_x)
+# best_w  = fmin_cg(loss, w0, gloss, maxiter=100)
+# py_best = predict(best_w, test_x);
+
+# print(py_best.shape)
+# print(test_x.shape)
+# print(test_y.shape)
+
+# plt.plot(test_x[0], py_best.T[0])
+# plt.plot(test_x[0], test_y.reshape(1, num_test)[0])
+# plt.show()
+
+
+# np.savetxt("train_x", train_x.T)
+# np.savetxt("train_y", train_y)
+# np.savetxt("test_x", test_x.T)
+# np.savetxt("test_y", test_y)
+# np.savetxt("pred_y_init", py0)
+# np.savetxt("pred_y", py_best)
