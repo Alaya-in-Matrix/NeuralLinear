@@ -8,4 +8,5 @@ train_x
 train_y
 pred_y
 pred_y_init
+.try/
 *.ipynb
