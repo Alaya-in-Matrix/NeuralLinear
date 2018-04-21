@@ -10,6 +10,9 @@ def tanh(x):
 def relu(x):
     return np.maximum(x, 0.0)
 
+def sigmoid(x):
+    return np.exp(x) / (1 + np.exp(x))
+
 class NN:
     def __init__(self,dim, layer_sizes, activations):
         self.num_layers  = np.copy(len(layer_sizes))
@@ -54,17 +57,19 @@ def chol_inv(L):
     return chol_solve(L, np.eye(L.shape[0]))
 
 class DSK_GP:
-    def __init__(self, train_x, train_y, layer_sizes, activations, bfgs_iter=500):
+    def __init__(self, train_x, train_y, layer_sizes, activations, bfgs_iter=500, l1=0, l2=0):
         self.train_x   = np.copy(train_x)
         self.train_y   = np.copy(train_y)
+        self.train_y.reshape(1, train_y.size)
         self.dim       = self.train_x.shape[0]
         self.num_train = self.train_x.shape[1]
         self.nn        = NN(self.dim, layer_sizes, activations)
-        self.train_y.reshape(1, train_y.size)
         self.num_param = self.nn.num_param() + 1
         self.nlz       = np.inf
-        self.bfgs_iter  = bfgs_iter;
-        self.debug = False
+        self.bfgs_iter = bfgs_iter;
+        self.debug     = False
+        self.l1        = l1;
+        self.l2        = l2;
 
     def log_likelihood(self, theta):
         # TODO: verification of this log_likelihood
@@ -95,12 +100,18 @@ class DSK_GP:
             self.theta = theta
         return neg_likelihood
 
-    def fit(self, theta):
+    def fit(self, theta, optimize=True):
         theta0     = theta.copy()
-        loss       = self.log_likelihood
+        self.theta = theta0;
+        def loss(w):
+            nlz    = self.log_likelihood(w);
+            l1_reg = self.l1 * np.abs(w).sum();
+            l2_reg = self.l2 * np.dot(w.reshape(1, w.size), w.reshape(w.size, 1))
+            return nlz + l1_reg + l2_reg
         gloss      = grad(loss)
         # fmin_cg(loss, theta0, gloss, maxiter = 100)
-        fmin_l_bfgs_b(loss, theta0, gloss, maxiter = self.bfgs_iter, m=100, iprint=10)
+        if optimize:
+            fmin_l_bfgs_b(loss, theta0, gloss, maxiter = self.bfgs_iter, m=100, iprint=10)
 
         # pre-computation
         log_sn  = self.theta[0]

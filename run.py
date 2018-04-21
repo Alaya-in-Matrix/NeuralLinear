@@ -10,16 +10,16 @@ test_x = np.loadtxt('test_x').T
 test_y = np.loadtxt('test_y')
 test_y = test_y.reshape(1, test_y.size)
 
-layer_sizes = [50, 50]
-activations = [dsk.relu, dsk.tanh]
+layer_sizes = [60, 200]
+activations = [dsk.sigmoid, dsk.sigmoid]
 scale       = 0.1
 
 dim = train_x.shape[0]
 
-gp       = dsk.DSK_GP(train_x, train_y, layer_sizes, activations, bfgs_iter=1000);
+gp       = dsk.DSK_GP(train_x, train_y, layer_sizes, activations, bfgs_iter=100, l1=0);
 theta    = scale * np.random.randn(gp.num_param)
 theta[0] = np.log(np.std(1e-2 * train_y))
-gp.fit(theta)
+gp.fit(theta, optimize=True)
 py, ps2 = gp.predict(test_x)
 
 Phi_train = gp.nn.predict(gp.theta[1:], train_x);
