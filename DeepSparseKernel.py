@@ -57,26 +57,30 @@ def chol_inv(L):
     return chol_solve(L, np.eye(L.shape[0]))
 
 class DSK_GP:
-    def __init__(self, train_x, train_y, layer_sizes, activations, bfgs_iter=500, l1=0, l2=0):
+    def __init__(self, train_x, train_y, layer_sizes, activations, bfgs_iter=500, l1=0, l2=0, debug = False):
         self.train_x   = np.copy(train_x)
         self.train_y   = np.copy(train_y)
-        self.train_y.reshape(1, train_y.size)
         self.dim       = self.train_x.shape[0]
         self.num_train = self.train_x.shape[1]
         self.nn        = NN(self.dim, layer_sizes, activations)
-        self.num_param = self.nn.num_param() + 1
+        self.num_param = self.nn.num_param() + 2;
+        self.m         = layer_sizes[-1];
         self.nlz       = np.inf
         self.bfgs_iter = bfgs_iter;
-        self.debug     = False
-        self.l1        = l1;
+        self.debug     = debug
+        self.l1        = l1; # TODO: only regularize weight, do not regularize bias
         self.l2        = l2;
+        self.train_y.reshape(1, train_y.size)
 
     def log_likelihood(self, theta):
         # TODO: verification of this log_likelihood
         log_sn       = theta[0]
-        w            = theta[1:]
+        log_sp       = theta[1]
+        w            = theta[2:]
         sn2          = np.exp(2 * log_sn)
-        Phi          = self.nn.predict(w, self.train_x)
+        sp           = np.exp(1 * log_sp);
+        sp2          = np.exp(2 * log_sp);
+        Phi          = sp * self.nn.predict(w, self.train_x) / np.sqrt(self.m)
         m, num_train = Phi.shape
         A            = sn2 * np.eye(m) + np.dot(Phi, Phi.T)
         LA           = np.linalg.cholesky(A)
@@ -91,6 +95,7 @@ class DSK_GP:
 
 
         # model complexity
+        # TODO: sum up the diagonal of LA to calculate logDetA
         s, logDetA       = np.linalg.slogdet(A)
         model_complexity = (num_train - m) * (2 * log_sn) + logDetA;
 
@@ -114,13 +119,16 @@ class DSK_GP:
             fmin_l_bfgs_b(loss, theta0, gloss, maxiter = self.bfgs_iter, m=100, iprint=10)
 
         # pre-computation
-        log_sn  = self.theta[0]
-        sn2     = np.exp(2 * log_sn)
-        w       = self.theta[1:]
-        Phi     = self.nn.predict(w, self.train_x)
-        m       = Phi.shape[0]
-        A       = sn2 * np.eye(m) + np.dot(Phi, Phi.T)
-        LA = np.linalg.cholesky(A)
+        log_sn = self.theta[0]
+        log_sp = self.theta[1]
+        w      = self.theta[2:]
+        sn2    = np.exp(2 * log_sn)
+        sp     = np.exp(log_sp);
+        sp2    = np.exp(2*log_sp);
+        Phi    = sp * self.nn.predict(w, self.train_x) / np.sqrt(self.m)
+        m      = self.m
+        A      = sn2 * np.eye(m) + np.dot(Phi, Phi.T)
+        LA     = np.linalg.cholesky(A)
 
         alpha      = self.train_y.copy()
         alpha      = Phi.dot(alpha.T)
@@ -133,14 +141,20 @@ class DSK_GP:
 
         Qmm    = Phi.dot(Phi.T)
         self.B = (Qmm - Qmm.dot(chol_solve(LA, Qmm))) / sn2
+        if self.debug:
+            np.savetxt('B', self.B)
 
     def predict(self, test_x):
         log_sn   = self.theta[0]
-        w        = self.theta[1:]
-        Phi_test = self.nn.predict(w, test_x)
+        log_sp   = self.theta[1]
+        w        = self.theta[2:]
+        sp       = np.exp(log_sp)
+        sp2      = np.exp(2*log_sp)
+        Phi_test = sp * self.nn.predict(w, test_x) / np.sqrt(self.m)
         py       = Phi_test.T.dot(self.alpha)
         ps2      = np.diagonal(np.exp(2 * log_sn) + Phi_test.T.dot(Phi_test) - Phi_test.T.dot(self.B.dot(Phi_test)))
-        np.savetxt('sf2', np.diagonal(Phi_test.T.dot(Phi_test)))
+        if self.debug:
+            np.savetxt('sf2', np.diagonal(Phi_test.T.dot(Phi_test)))
         return py, ps2
 
 
