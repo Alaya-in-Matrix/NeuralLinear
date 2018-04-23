@@ -125,36 +125,44 @@ class DSK_GP:
         sn2    = np.exp(2 * log_sn)
         sp     = np.exp(log_sp);
         sp2    = np.exp(2*log_sp);
-        Phi    = sp * self.nn.predict(w, self.train_x) / np.sqrt(self.m)
+        Phi    = self.nn.predict(w, self.train_x)
         m      = self.m
-        A      = sn2 * np.eye(m) + np.dot(Phi, Phi.T)
+        A      = (sn2 * m / sp2) * np.eye(m) + np.dot(Phi, Phi.T)
         LA     = np.linalg.cholesky(A)
 
-        alpha      = self.train_y.copy()
-        alpha      = Phi.dot(alpha.T)
-        alpha      = chol_solve(LA, alpha)
-        alpha      = Phi.T.dot(alpha)
-        alpha      = self.train_y.T - alpha;
-        alpha      = alpha / sn2;
-        alpha      = Phi.dot(alpha)
-        self.alpha = alpha
+        self.LA     = LA.copy()
+        self.alpha  = chol_solve(LA, np.dot(Phi, self.train_y.T))
+        # A      = sn2 * np.eye(m) + np.dot(Phi, Phi.T)
+        # LA     = np.linalg.cholesky(A)
 
-        Qmm    = Phi.dot(Phi.T)
-        self.B = (Qmm - Qmm.dot(chol_solve(LA, Qmm))) / sn2
-        if self.debug:
-            np.savetxt('B', self.B)
+        # alpha      = self.train_y.copy()
+        # alpha      = Phi.dot(alpha.T)
+        # alpha      = chol_solve(LA, alpha)
+        # alpha      = Phi.T.dot(alpha)
+        # alpha      = self.train_y.T - alpha;
+        # alpha      = alpha / sn2;
+        # alpha      = Phi.dot(alpha)
+        # self.alpha = alpha
+
+        # Qmm    = Phi.dot(Phi.T)
+        # self.B = (Qmm - Qmm.dot(chol_solve(LA, Qmm))) / sn2
+        # if self.debug:
+        #     np.savetxt('B', self.B)
 
     def predict(self, test_x):
         log_sn   = self.theta[0]
         log_sp   = self.theta[1]
         w        = self.theta[2:]
+        sn       = np.exp(log_sn)
+        sn2      = np.exp(2*log_sn)
         sp       = np.exp(log_sp)
         sp2      = np.exp(2*log_sp)
-        Phi_test = sp * self.nn.predict(w, test_x) / np.sqrt(self.m)
+        Phi_test = self.nn.predict(w, test_x)
         py       = Phi_test.T.dot(self.alpha)
-        ps2      = np.diagonal(np.exp(2 * log_sn) + Phi_test.T.dot(Phi_test) - Phi_test.T.dot(self.B.dot(Phi_test)))
-        if self.debug:
-            np.savetxt('sf2', np.diagonal(Phi_test.T.dot(Phi_test)))
+        ps2      = sn2 + sn2 * np.diagonal(Phi_test.T.dot(chol_solve(self.LA, Phi_test)));
+        # ps2      = np.diagonal(np.exp(2 * log_sn) + Phi_test.T.dot(Phi_test) - Phi_test.T.dot(self.B.dot(Phi_test)))
+        # if self.debug:
+        #     np.savetxt('sf2', np.diagonal(Phi_test.T.dot(Phi_test)))
         return py, ps2
 
 
