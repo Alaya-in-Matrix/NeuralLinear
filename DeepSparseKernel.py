@@ -3,6 +3,7 @@ from autograd import grad
 import autograd.numpy.random as npr
 from scipy.optimize import fmin_cg, fmin_l_bfgs_b
 import matplotlib.pyplot as plt
+import math
 
 def tanh(x):
     return np.tanh(x)
@@ -12,6 +13,35 @@ def relu(x):
 
 def sigmoid(x):
     return np.exp(x) / (1 + np.exp(x))
+
+def erf(x):
+    # save the sign of x
+    # sign = 1 if x >= 0 else -1
+    sign = np.sign(x);
+    x    = np.abs(x)
+
+    # constants
+    a1 =  0.254829592
+    a2 = -0.284496736
+    a3 =  1.421413741
+    a4 = -1.453152027
+    a5 =  1.061405429
+    p  =  0.3275911
+
+    # A&S formula 7.1.26
+    t = 1.0/(1.0 + p*x)
+    y = 1.0 - (((((a5*t + a4)*t) + a3)*t + a2)*t + a1)*t*np.exp(-x*x)
+    return sign*y
+
+# def erf(x):
+#     xr = x.reshape(x.size)
+#     y  = 1.0 * xr
+#     for i in range(x.size):
+#         print(xr[i])
+#         print(erf_scalar(xr[i]))
+#         y[i] = erf_scalar(xr[i])
+#     print(y)
+#     return y.reshape(x.shape)
 
 class NN:
     def __init__(self,dim, layer_sizes, activations):
