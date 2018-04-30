@@ -129,7 +129,7 @@ class DSK_GP:
         s, logDetA       = np.linalg.slogdet(A)
         model_complexity = (num_train - m) * (2 * log_sn) + logDetA;
 
-        neg_likelihood   = 0.5 * (data_fit + model_complexity)
+        neg_likelihood   = 0.5 * (data_fit + model_complexity + num_train * np.log(2 * np.pi))
         if(neg_likelihood < self.nlz):
             self.nlz   = neg_likelihood
             self.theta = theta
