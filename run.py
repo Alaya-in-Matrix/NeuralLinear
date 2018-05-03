@@ -16,7 +16,7 @@ scale       = 1
 
 dim = train_x.shape[0]
 
-gp       = dsk.DSK_GP(train_x, train_y, layer_sizes, activations, bfgs_iter=2000, l1=0, l2=0, debug=True);
+gp       = dsk.DSK_GP(train_x, train_y, layer_sizes, activations, bfgs_iter=1000, l1=0, l2=0, debug=True);
 theta    = scale * np.random.randn(gp.num_param)
 theta[0] = np.log(np.std(train_y) / 2) # noise
 theta[1] = np.log(np.std(train_y)) # self covariance
