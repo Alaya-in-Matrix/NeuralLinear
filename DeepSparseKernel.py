@@ -34,16 +34,6 @@ def erf(x):
     y = 1.0 - (((((a5*t + a4)*t) + a3)*t + a2)*t + a1)*t*np.exp(-x*x)
     return sign*y
 
-# def erf(x):
-#     xr = x.reshape(x.size)
-#     y  = 1.0 * xr
-#     for i in range(x.size):
-#         print(xr[i])
-#         print(erf_scalar(xr[i]))
-#         y[i] = erf_scalar(xr[i])
-#     print(y)
-#     return y.reshape(x.shape)
-
 class NN:
     def __init__(self,dim, layer_sizes, activations):
         self.num_layers  = np.copy(len(layer_sizes))
@@ -91,6 +81,7 @@ class DSK_GP:
     def __init__(self, train_x, train_y, layer_sizes, activations, bfgs_iter=500, l1=0, l2=0, debug = False):
         self.train_x   = np.copy(train_x)
         self.train_y   = np.copy(train_y)
+        self.mean      = np.mean(train_y)
         self.dim       = self.train_x.shape[0]
         self.num_train = self.train_x.shape[1]
         self.nn        = NN(self.dim, layer_sizes, activations)
@@ -102,6 +93,7 @@ class DSK_GP:
         self.l1        = l1; # TODO: only regularize weight, do not regularize bias
         self.l2        = l2;
         self.train_y.reshape(1, train_y.size)
+        self.train_y_zero = self.train_y - self.mean;
 
     def scale_x(self, train_x, log_lscales):
         lscales = np.exp(log_lscales).repeat(train_x.shape[1], axis=0).reshape(train_x.shape);
@@ -117,18 +109,17 @@ class DSK_GP:
         sn2          = np.exp(2 * log_sn)
         sp           = np.exp(1 * log_sp);
         sp2          = np.exp(2 * log_sp);
-        # Phi          = sp * self.nn.predict(w, self.train_x) / np.sqrt(self.m)
         Phi          = sp * self.nn.predict(w, scaled_x) / np.sqrt(self.m)
         m, num_train = Phi.shape
         A            = sn2 * np.eye(m) + np.dot(Phi, Phi.T)
         LA           = np.linalg.cholesky(A)
 
         # data fit
-        data_fit_1 = np.dot(self.train_y, self.train_y.T)
-        data_fit_2 = np.dot(Phi, self.train_y.T)
+        data_fit_1 = np.dot(self.train_y_zero, self.train_y_zero.T)
+        data_fit_2 = np.dot(Phi, self.train_y_zero.T)
         data_fit_2 = chol_solve(LA, data_fit_2)
         data_fit_2 = np.dot(Phi.T, data_fit_2)
-        data_fit_2 = np.dot(self.train_y, data_fit_2)
+        data_fit_2 = np.dot(self.train_y_zero, data_fit_2)
         data_fit   = (data_fit_1 - data_fit_2) / sn2;
 
 
@@ -157,6 +148,7 @@ class DSK_GP:
         try:
             if optimize:
                 fmin_l_bfgs_b(loss, theta0, gloss, maxiter = self.bfgs_iter, m=100, iprint=10)
+                # fmin_cg(loss, theta0, gloss, maxiter = self.bfgs_iter)
         except:
             print("Exception caught, L-BFGS early stopping...")
             print(sys.exc_info())
@@ -177,23 +169,7 @@ class DSK_GP:
         LA     = np.linalg.cholesky(A)
 
         self.LA     = LA.copy()
-        self.alpha  = chol_solve(LA, np.dot(Phi, self.train_y.T))
-        # A      = sn2 * np.eye(m) + np.dot(Phi, Phi.T)
-        # LA     = np.linalg.cholesky(A)
-
-        # alpha      = self.train_y.copy()
-        # alpha      = Phi.dot(alpha.T)
-        # alpha      = chol_solve(LA, alpha)
-        # alpha      = Phi.T.dot(alpha)
-        # alpha      = self.train_y.T - alpha;
-        # alpha      = alpha / sn2;
-        # alpha      = Phi.dot(alpha)
-        # self.alpha = alpha
-
-        # Qmm    = Phi.dot(Phi.T)
-        # self.B = (Qmm - Qmm.dot(chol_solve(LA, Qmm))) / sn2
-        # if self.debug:
-        #     np.savetxt('B', self.B)
+        self.alpha  = chol_solve(LA, np.dot(Phi, self.train_y_zero.T))
 
     def predict(self, test_x):
         log_sn      = self.theta[0]
@@ -205,47 +181,6 @@ class DSK_GP:
         sp          = np.exp(log_sp)
         sp2         = np.exp(2*log_sp)
         Phi_test    = self.nn.predict(w, self.scale_x(test_x, log_lscales))
-        py          = Phi_test.T.dot(self.alpha)
+        py          = self.mean + Phi_test.T.dot(self.alpha)
         ps2         = sn2 + sn2 * np.diagonal(Phi_test.T.dot(chol_solve(self.LA, Phi_test)));
-        # ps2      = np.diagonal(np.exp(2 * log_sn) + Phi_test.T.dot(Phi_test) - Phi_test.T.dot(self.B.dot(Phi_test)))
-        # if self.debug:
-        #     np.savetxt('sf2', np.diagonal(Phi_test.T.dot(Phi_test)))
         return py, ps2
-
-
-# def f(x):
-#     xsum = x.sum(axis=0);
-#     # return np.sign(xsum)
-#     return 0.05 * xsum**2 + np.sin(xsum);
-
-# dim       = 1
-# num_train = 600
-# num_test  = 1000
-# sn        = 1e-1
-# train_x   = 5 * np.random.randn(dim, num_train)
-# train_y   = f(train_x) + sn * np.random.randn(1, num_train)
-# test_x    = np.linspace(-30, 60, num_test).reshape(dim, num_test);
-# test_y    = f(test_x).reshape(1, num_test);
-# gp        = DSK_GP(train_x, train_y, [50, 50], [tanh, tanh])
-
-
-# theta   = np.random.randn(gp.num_param)
-# gloss   = grad(gp.log_likelihood)
-# g_theta = gloss(theta)
-
-# gp.fit(theta)
-# py, ps2 = gp.predict(test_x)
-
-# plt.plot(test_x[0], py.T[0], 'b')
-# plt.plot(test_x[0], py.T[0] + np.sqrt(ps2.T[0]), 'g')
-# plt.plot(test_x[0], py.T[0] - np.sqrt(ps2.T[0]), 'g')
-# plt.plot(train_x, train_y, 'r+')
-# plt.show()
-
-# np.savetxt('train_x', train_x)
-# np.savetxt('train_y', train_y)
-# np.savetxt('test_x', test_x)
-# np.savetxt('test_y', test_y)
-# np.savetxt('pred_y', py)
-# np.savetxt('pred_s', np.sqrt(ps2))
-# np.savetxt('theta', gp.theta)
