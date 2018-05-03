@@ -1,10 +1,10 @@
 import autograd.numpy as np
 from autograd import grad
 import autograd.numpy.random as npr
-from scipy.optimize import fmin_cg, fmin_l_bfgs_b
 import matplotlib.pyplot as plt
 import math
 import sys
+from scipy.optimize import fmin_cg, fmin_l_bfgs_b, fmin_ncg
 
 def tanh(x):
     return np.tanh(x)
@@ -59,7 +59,7 @@ class NN:
             layer_size   = self.layer_sizes[i]
             num_w_layer  = (prev_size+1) * layer_size;
             w_layer      = np.reshape(w[start_idx:start_idx+num_w_layer], (prev_size+1, layer_size))
-            out          = self.activation[i](np.dot(w_layer.T, np.concatenate((bias, out))))
+            out          = self.activation[i](np.dot(w_layer.T, np.concatenate((out, bias))))
             prev_size    = layer_size
             start_idx   += num_w_layer
         return out
@@ -125,7 +125,10 @@ class DSK_GP:
 
         # model complexity
         # TODO: sum up the diagonal of LA to calculate logDetA
-        s, logDetA       = np.linalg.slogdet(A)
+        # s, logDetA       = np.linalg.slogdet(A)
+        logDetA = 0
+        for i in range(m):
+            logDetA += 2 * np.log(LA[i][i])
         model_complexity = (num_train - m) * (2 * log_sn) + logDetA;
 
         neg_likelihood   = 0.5 * (data_fit + model_complexity + num_train * np.log(2 * np.pi))
@@ -142,13 +145,12 @@ class DSK_GP:
             loss   = nlz + l1_reg + l2_reg
             if loss < self.loss:
                 self.loss  = loss
-                self.theta = w
+                self.theta = w.copy()
             return loss
         gloss      = grad(loss)
         try:
             if optimize:
-                fmin_l_bfgs_b(loss, theta0, gloss, maxiter = self.bfgs_iter, m=100, iprint=10)
-                # fmin_cg(loss, theta0, gloss, maxiter = self.bfgs_iter)
+                fmin_l_bfgs_b(loss, theta0, gloss, maxiter = self.bfgs_iter, m = 100, iprint=1)
         except:
             print("Exception caught, L-BFGS early stopping...")
             print(sys.exc_info())
