@@ -10,9 +10,9 @@ test_x = np.loadtxt('test_x').T
 test_y = np.loadtxt('test_y')
 test_y = test_y.reshape(1, test_y.size)
 
-layer_sizes = [50, 50]
-activations = [dsk.tanh, dsk.tanh]
-scale       = 1
+layer_sizes = [50]
+activations = [dsk.tanh]
+scale       = 0.1
 
 dim = train_x.shape[0]
 
@@ -26,8 +26,10 @@ gp.fit(theta, optimize=True)
 py, ps2             = gp.predict(test_x)
 py_train, ps2_train = gp.predict(train_x)
 
-Phi_train = gp.nn.predict(gp.theta[2:], train_x);
-Phi_test  = gp.nn.predict(gp.theta[2:], test_x);
+
+log_lscales = gp.theta[2:2+dim];
+Phi_train   = gp.nn.predict(gp.theta[2+dim:], gp.scale_x(train_x, log_lscales));
+Phi_test    = gp.nn.predict(gp.theta[2+dim:], gp.scale_x(test_x, log_lscales));
 
 np.savetxt('pred_y', py)
 np.savetxt('pred_s2', ps2)
