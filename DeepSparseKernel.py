@@ -101,37 +101,41 @@ class DSK_GP:
 
     def log_likelihood(self, theta):
         # TODO: verification of this log_likelihood
-        log_sn       = theta[0]
-        log_sp       = theta[1]
-        log_lscales  = theta[2:2+self.dim];
-        w            = theta[2+self.dim:]
-        scaled_x     = self.scale_x(self.train_x, log_lscales)
-        sn2          = np.exp(2 * log_sn)
-        sp           = np.exp(1 * log_sp);
-        sp2          = np.exp(2 * log_sp);
-        Phi          = sp * self.nn.predict(w, scaled_x) / np.sqrt(self.m)
-        m, num_train = Phi.shape
-        A            = sn2 * np.eye(m) + np.dot(Phi, Phi.T)
-        LA           = np.linalg.cholesky(A)
+        log_sn      = theta[0]
+        log_sp      = theta[1]
+        log_lscales = theta[2:2+self.dim];
+        w           = theta[2+self.dim:]
+        scaled_x    = self.scale_x(self.train_x, log_lscales)
+        sn2         = np.exp(2 * log_sn)
+        sp          = np.exp(1 * log_sp);
+        sp2         = np.exp(2 * log_sp);
 
-        # data fit
-        data_fit_1 = np.dot(self.train_y_zero, self.train_y_zero.T)
-        data_fit_2 = np.dot(Phi, self.train_y_zero.T)
-        data_fit_2 = chol_solve(LA, data_fit_2)
-        data_fit_2 = np.dot(Phi.T, data_fit_2)
-        data_fit_2 = np.dot(self.train_y_zero, data_fit_2)
-        data_fit   = (data_fit_1 - data_fit_2) / sn2;
+        neg_likelihood = np.inf
+        Phi            = self.nn.predict(w, scaled_x);
+        m, num_train   = Phi.shape
+        A              = np.dot(Phi, Phi.T) + (sn2 * m / sp2) * np.eye(m);
+        LA             = np.linalg.cholesky(A)
 
-
-        # model complexity
-        # TODO: sum up the diagonal of LA to calculate logDetA
-        # s, logDetA       = np.linalg.slogdet(A)
+        Phi_y = np.dot(Phi, self.train_y_zero.T)
+        data_fit = (np.dot(self.train_y_zero, self.train_y_zero.T) - np.dot(Phi_y.T, chol_solve(LA, Phi_y))) / sn2
         logDetA = 0
         for i in range(m):
             logDetA += 2 * np.log(LA[i][i])
-        model_complexity = (num_train - m) * (2 * log_sn) + logDetA;
+        neg_likelihood = 0.5 * (data_fit + logDetA - m * np.log(m * sn2 / sp2) + num_train * np.log(2 * np.pi * sn2))
+        if(np.isnan(neg_likelihood)):
+            neg_likelihood = np.inf
+        
+        l1_reg = self.l1 * np.abs(w).sum();
+        l2_reg = self.l2 * np.dot(w.reshape(1, w.size), w.reshape(w.size, 1))
+        loss   = neg_likelihood + l1_reg + l2_reg
 
-        neg_likelihood   = 0.5 * (data_fit + model_complexity + num_train * np.log(2 * np.pi))
+        # refresh current best
+        if neg_likelihood < self.loss:
+            self.loss  = loss.copy()
+            self.theta = theta.copy()
+            self.LA    = LA.copy()
+            self.A     = A.copy()
+
         return neg_likelihood
 
     def fit(self, theta, optimize=True):
@@ -139,14 +143,8 @@ class DSK_GP:
         self.loss  = np.inf
         self.theta = theta0;
         def loss(w):
-            nlz    = self.log_likelihood(w);
-            l1_reg = self.l1 * np.abs(w).sum();
-            l2_reg = self.l2 * np.dot(w.reshape(1, w.size), w.reshape(w.size, 1))
-            loss   = nlz + l1_reg + l2_reg
-            if loss < self.loss:
-                self.loss  = loss
-                self.theta = w.copy()
-            return loss
+            nlz = self.log_likelihood(w);
+            return nlz
         gloss      = grad(loss)
         try:
             if optimize:
@@ -155,23 +153,22 @@ class DSK_GP:
             print("Exception caught, L-BFGS early stopping...")
             print(sys.exc_info())
 
-        print("Optimized")
+        print("Optimized loss is %g" % self.loss)
+        if(np.isinf(self.loss) or np.isnan(self.loss)):
+            print("Fail to build GP model")
+            sys.exit(1)
 
         # pre-computation
-        log_sn = self.theta[0]
-        log_sp = self.theta[1]
+        log_sn      = self.theta[0]
+        log_sp      = self.theta[1]
         log_lscales = self.theta[2:2+self.dim]
-        w      = self.theta[2+self.dim:]
-        sn2    = np.exp(2 * log_sn)
-        sp     = np.exp(log_sp);
-        sp2    = np.exp(2*log_sp);
-        Phi    = self.nn.predict(w, self.scale_x(self.train_x, log_lscales))
-        m      = self.m
-        A      = (sn2 * m / sp2) * np.eye(m) + np.dot(Phi, Phi.T)
-        LA     = np.linalg.cholesky(A)
-
-        self.LA     = LA.copy()
-        self.alpha  = chol_solve(LA, np.dot(Phi, self.train_y_zero.T))
+        w           = self.theta[2+self.dim:]
+        sn2         = np.exp(2 * log_sn)
+        sp          = np.exp(log_sp);
+        sp2         = np.exp(2*log_sp);
+        Phi         = self.nn.predict(w, self.scale_x(self.train_x, log_lscales))
+        m           = self.m
+        self.alpha  = chol_solve(self.LA, np.dot(Phi, self.train_y_zero.T))
 
     def predict(self, test_x):
         log_sn      = self.theta[0]

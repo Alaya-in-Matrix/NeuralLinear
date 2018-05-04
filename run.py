@@ -2,6 +2,8 @@ import DeepSparseKernel as dsk
 from DeepSparseKernel import np
 import matplotlib.pyplot as plt
 
+np.random.seed(3686491654)
+
 train_x = np.loadtxt('train_x').T
 train_y = np.loadtxt('train_y')
 train_y = train_y.reshape(1, train_y.size)
@@ -10,13 +12,13 @@ test_x = np.loadtxt('test_x').T
 test_y = np.loadtxt('test_y')
 test_y = test_y.reshape(1, test_y.size)
 
-layer_sizes = [50, 50]
-activations = [dsk.relu, dsk.relu]
-scale       = 1
+layer_sizes = [5]
+activations = [dsk.relu]
+scale       = 0.1
 
 dim = train_x.shape[0]
 
-gp       = dsk.DSK_GP(train_x, train_y, layer_sizes, activations, bfgs_iter=200, l1=0, l2=0, debug=True);
+gp       = dsk.DSK_GP(train_x, train_y, layer_sizes, activations, bfgs_iter=2000, l1=0, l2=0, debug=True);
 theta    = scale * np.random.randn(gp.num_param)
 theta[0] = np.log(np.std(train_y) / 2) # noise
 theta[1] = np.log(np.std(train_y)) # self covariance
