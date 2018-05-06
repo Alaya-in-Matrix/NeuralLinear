@@ -99,6 +99,10 @@ class DSK_GP:
         lscales = np.exp(log_lscales).repeat(train_x.shape[1], axis=0).reshape(train_x.shape);
         return train_x / lscales
 
+    def calc_Phi(self, w, x):
+        Phi = self.nn.predict(w, x);
+        return Phi
+
     def log_likelihood(self, theta):
         # TODO: verification of this log_likelihood
         log_sn      = theta[0]
@@ -111,7 +115,7 @@ class DSK_GP:
         sp2         = np.exp(2 * log_sp);
 
         neg_likelihood = np.inf
-        Phi            = self.nn.predict(w, scaled_x);
+        Phi            = self.calc_Phi(w, scaled_x);
         m, num_train   = Phi.shape
         A              = np.dot(Phi, Phi.T) + (sn2 * m / sp2) * np.eye(m);
         LA             = np.linalg.cholesky(A)
@@ -166,7 +170,7 @@ class DSK_GP:
         sn2         = np.exp(2 * log_sn)
         sp          = np.exp(log_sp);
         sp2         = np.exp(2*log_sp);
-        Phi         = self.nn.predict(w, self.scale_x(self.train_x, log_lscales))
+        Phi         = self.calc_Phi(w, self.scale_x(self.train_x, log_lscales))
         m           = self.m
         self.alpha  = chol_solve(self.LA, np.dot(Phi, self.train_y_zero.T))
 
@@ -179,7 +183,7 @@ class DSK_GP:
         sn2         = np.exp(2*log_sn)
         sp          = np.exp(log_sp)
         sp2         = np.exp(2*log_sp)
-        Phi_test    = self.nn.predict(w, self.scale_x(test_x, log_lscales))
+        Phi_test    = self.calc_Phi(w, self.scale_x(test_x, log_lscales))
         py          = self.mean + Phi_test.T.dot(self.alpha)
         ps2         = sn2 + sn2 * np.diagonal(Phi_test.T.dot(chol_solve(self.LA, Phi_test)));
         return py, ps2

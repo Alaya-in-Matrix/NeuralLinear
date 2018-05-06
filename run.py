@@ -20,8 +20,8 @@ print(dim)
 print(train_x.shape)
 print(test_x.shape)
 
-layer_sizes = [200]
-activations = [dsk.erf]
+layer_sizes = [50, 50, 50]
+activations = [dsk.tanh, dsk.tanh, dsk.tanh]
 scale       = 0.1
 
 dim = train_x.shape[0]
@@ -38,8 +38,8 @@ py_train, ps2_train = gp.predict(train_x)
 
 
 log_lscales = gp.theta[2:2+dim];
-Phi_train   = gp.nn.predict(gp.theta[2+dim:], gp.scale_x(train_x, log_lscales));
-Phi_test    = gp.nn.predict(gp.theta[2+dim:], gp.scale_x(test_x, log_lscales));
+Phi_train   = gp.calc_Phi(gp.theta[2+dim:], gp.scale_x(train_x, log_lscales));
+Phi_test    = gp.calc_Phi(gp.theta[2+dim:], gp.scale_x(test_x, log_lscales));
 
 np.savetxt('pred_y', py)
 np.savetxt('pred_s2', ps2)
@@ -47,8 +47,8 @@ np.savetxt('theta', gp.theta)
 np.savetxt('Phi_train', Phi_train)
 np.savetxt('Phi_test', Phi_test)
 
-plt.plot(test_y.reshape(test_y.size), py.reshape(py.size), 'r.', train_y.reshape(train_y.size), py_train.reshape(train_y.size), 'b.')
-plt.show()
+# plt.plot(test_y.reshape(test_y.size), py.reshape(py.size), 'r.', train_y.reshape(train_y.size), py_train.reshape(train_y.size), 'b.')
+# plt.show()
 
 gp.debug = True
 print(gp.log_likelihood(gp.theta))
