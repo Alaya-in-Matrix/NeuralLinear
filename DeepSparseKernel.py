@@ -328,3 +328,5 @@ class MODSK:
 
     def predict(self):
         pass
+
+# TODO: # https://towardsdatascience.com/random-initialization-for-neural-networks-a-thing-of-the-past-bfcdd806bf9e
