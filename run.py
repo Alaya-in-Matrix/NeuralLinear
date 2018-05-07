@@ -20,8 +20,8 @@ print(dim)
 print(train_x.shape)
 print(test_x.shape)
 
-layer_sizes = [50, 50, 50]
-activations = [dsk.tanh, dsk.tanh, dsk.tanh]
+layer_sizes = [50, 50, 50, 50]
+activations = [dsk.relu, dsk.tanh, dsk.relu, dsk.tanh]
 scale       = 0.1
 
 dim = train_x.shape[0]
@@ -47,8 +47,8 @@ np.savetxt('theta', gp.theta)
 np.savetxt('Phi_train', Phi_train)
 np.savetxt('Phi_test', Phi_test)
 
-plt.plot(test_y.reshape(test_y.size), py.reshape(py.size), 'r.', train_y.reshape(train_y.size), py_train.reshape(train_y.size), 'b.')
-plt.show()
+# plt.plot(test_y.reshape(test_y.size), py.reshape(py.size), 'r.', train_y.reshape(train_y.size), py_train.reshape(train_y.size), 'b.')
+# plt.show()
 
 gp.debug = True
 print(gp.log_likelihood(gp.theta))

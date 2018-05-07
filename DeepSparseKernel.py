@@ -131,7 +131,6 @@ class DSK_GP:
         
         l1_reg         = self.l1 * np.abs(w).sum();
         l2_reg         = self.l2 * np.dot(w.reshape(1, w.size), w.reshape(w.size, 1))
-        print((neg_likelihood[0][0], l2_reg[0][0], np.dot(w, w)))
         neg_likelihood = neg_likelihood + l1_reg + l2_reg
 
         # refresh current best
@@ -309,18 +308,6 @@ class MODSK:
         except:
             print("Exception caught, L-BFGS early stopping...")
             print(sys.exc_info())
-
-        log_sns, log_sps, log_lscales, ws = self.split_theta(self.theta)
-        scaled_x                          = scale_x(self.train_x, log_lscales)
-        Phis                              = self.calc_Phi(ws, scaled_x)
-        losses                            = np.array(self.loss(self.theta))
-        if(self.debug):
-            for i in range(self.num_obj):
-                np.savetxt('Phi_train' + str(i), Phis[i])
-            np.savetxt('train_y_mean', self.means)
-            np.savetxt('train_y_std',  self.stds)
-            np.savetxt('theta',        self.theta)
-            np.savetxt('loss',         losses.reshape(losses.size))
 
     def predict(self):
         pass
