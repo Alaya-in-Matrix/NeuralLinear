@@ -87,6 +87,11 @@ def chol_solve(L, y):
 def chol_inv(L):
     return chol_solve(L, np.eye(L.shape[0]))
 
+
+def scale_x(xs, log_lscales):
+    lscales = np.exp(log_lscales).repeat(xs.shape[1], axis=0).reshape(xs.shape);
+    return xs / lscales
+
 class DSK_GP:
     def __init__(self, train_x, train_y, layer_sizes, activations, bfgs_iter=500, l1=0, l2=0, debug = False):
         self.train_x   = np.copy(train_x)
@@ -105,9 +110,6 @@ class DSK_GP:
         self.train_y.reshape(1, train_y.size)
         self.train_y_zero = self.train_y - self.mean;
 
-    def scale_x(self, train_x, log_lscales):
-        lscales = np.exp(log_lscales).repeat(train_x.shape[1], axis=0).reshape(train_x.shape);
-        return train_x / lscales
 
     def calc_Phi(self, w, x):
         Phi = self.nn.predict(w, x);
@@ -119,7 +121,7 @@ class DSK_GP:
         log_sp      = theta[1]
         log_lscales = theta[2:2+self.dim];
         w           = theta[2+self.dim:]
-        scaled_x    = self.scale_x(self.train_x, log_lscales)
+        scaled_x    = scale_x(self.train_x, log_lscales)
         sn2         = np.exp(2 * log_sn)
         sp          = np.exp(1 * log_sp);
         sp2         = np.exp(2 * log_sp);
@@ -180,7 +182,7 @@ class DSK_GP:
         sn2         = np.exp(2 * log_sn)
         sp          = np.exp(log_sp);
         sp2         = np.exp(2*log_sp);
-        Phi         = self.calc_Phi(w, self.scale_x(self.train_x, log_lscales))
+        Phi         = self.calc_Phi(w, scale_x(self.train_x, log_lscales))
         m           = self.m
         self.alpha  = chol_solve(self.LA, np.dot(Phi, self.train_y_zero.T))
 
@@ -193,7 +195,7 @@ class DSK_GP:
         sn2         = np.exp(2*log_sn)
         sp          = np.exp(log_sp)
         sp2         = np.exp(2*log_sp)
-        Phi_test    = self.calc_Phi(w, self.scale_x(test_x, log_lscales))
+        Phi_test    = self.calc_Phi(w, scale_x(test_x, log_lscales))
         py          = self.mean + Phi_test.T.dot(self.alpha)
         ps2         = sn2 + sn2 * np.diagonal(Phi_test.T.dot(chol_solve(self.LA, Phi_test)));
         return py, ps2
@@ -201,12 +203,6 @@ class DSK_GP:
 
 class MODSK:
     def __init__(self, train_x, train_y, shared_nn, non_shared_nns, max_iter = 100, l1 = 0, l2 = 0, debug=False): 
-        if(train_x.ndim != 2 or train_y.ndim != 2):
-            print("train_x.ndim != 2 or train_y.ndim != 2")
-            sys.exit(1)
-        if(train_x.shape[1] != train_y.shape[0]):
-            print("train_x.shape[1] != train_y.shape[0]")
-            sys.exit(1)
         self.train_x        = np.copy(train_x)
         self.train_y        = np.copy(train_y)
         self.dim            = self.train_x.shape[0]
@@ -221,15 +217,114 @@ class MODSK:
         self.shared_nn      = shared_nn
         self.non_shared_nns = non_shared_nns
         self.num_param      = self.calc_num_params()
+        if(train_x.ndim != 2 or train_y.ndim != 2):
+            print("train_x.ndim != 2 or train_y.ndim != 2")
+            sys.exit(1)
+        if(train_x.shape[1] != train_y.shape[0]):
+            print("train_x.shape[1] != train_y.shape[0]")
+            sys.exit(1)
+        if(len(non_shared_nns) != self.num_obj):
+            print("len(non_shared_nns) != self.num_obj")
+            sys.exit(1)
 
     def calc_num_params(self):
-        pass
+        """ 
+        parameters:
+            1. length scales: dim
+            2. noise: num_obj
+            3. self covariance: num_obj
+        """
+        num_param = self.dim + 2 * self.num_obj + self.shared_nn.num_param(self.dim)
+        size_last_layer_shared = self.shared_nn.layer_sizes[-1]
+        for i in range(self.num_obj):
+            num_param += non_shared_nns[i].num_param(size_last_layer_shared)
+        return num_param
 
+    def calc_Phi(self, ws, x):
+        w_shared     = ws[:self.shared_nn.num_param(self.dim)]
+        w_non_shared = ws[self.shared_nn.num_param(self.dim):]
+        Phi_shared   = self.shared_nn.predict(w_shared, x)
+        m_shared     = Phi_shared.shape[0]
+        Phis         = []
+        start_idx    = 0
+        for nn in self.non_shared_nns:
+            w_tmp     = w_non_shared[start_idx: nn.num_param(m_shared)]
+            Phi_tmp   = nn.predict(w_tmp, Phi_shared)
+            start_idx = start_idx + w_tmp.size
+            Phis     += [Phi_tmp]
+        return Phis
+    
     def loss(self, theta):
-        pass
+        """
+        return a list of losses
+        """
+        assert(theta.size == self.num_param)
+        log_sn      = theta[0]
+        log_sp      = theta[1]
+        log_lscales = theta[2:2+self.dim]
+        ws          = theta[2+self.dim:]
+        Phis        = self.calc_Phi(ws, scale_x(self.train_x, log_lscales))
+        losses      = []
+        for i in range(self.num_obj):
+            losses += [self.log_likelihood(log_sn, log_sp, Phis[i], train_y[:, i])]
+        return losses
 
-    def fit(self):
-        pass
+    def log_likelihood(self, log_sn, log_sp, Phi, train_y):
+        sn2         = np.exp(2 * log_sn)
+        sp          = np.exp(1 * log_sp);
+        sp2         = np.exp(2 * log_sp);
+
+        neg_likelihood = np.inf
+        m, num_train   = Phi.shape
+        A              = np.dot(Phi, Phi.T) + (sn2 * m / sp2) * np.eye(m);
+        LA             = np.linalg.cholesky(A)
+
+        Phi_y = np.dot(Phi, self.train_y_zero.T)
+        data_fit = (np.dot(self.train_y_zero, self.train_y_zero.T) - np.dot(Phi_y.T, chol_solve(LA, Phi_y))) / sn2
+        logDetA = 0
+        for i in range(m):
+            logDetA += 2 * np.log(LA[i][i])
+        neg_likelihood = 0.5 * (data_fit + logDetA - m * np.log(m * sn2 / sp2) + num_train * np.log(2 * np.pi * sn2))
+        if(np.isnan(neg_likelihood)):
+            neg_likelihood = np.inf
+        
+        return neg_likelihood
+
+    def fit(self, theta):
+        theta0    = theta.copy()
+        self.loss = np.inf
+        def lossfit(theta):
+            w      = theta[2+sefl.dim:]
+            loss   = sum(self.loss(theta))
+            l1_reg = self.l1 * np.abs(w).sum();
+            l2_reg = self.l2 * np.dot(w.reshape(1, w.size), w.reshape(w.size, 1))
+            loss   = loss + l1_reg + l2_reg
+            if loss < self.loss:
+                self.loss  = loss
+                self.theta = theta.copy()
+            return loss
+        gloss = grad(lossfit)
+        try:
+            if optimize:
+                fmin_l_bfgs_b(lossfit, theta0, gloss, maxiter = self.max_iter, m = 100, iprint=1)
+        except:
+            print("Exception caught, L-BFGS early stopping...")
+            print(sys.exc_info())
+
+        log_sn      = self.theta[0]
+        log_sp      = self.theta[1]
+        log_lscales = self.theta[2:2+self.dim];
+        w           = self.theta[2+self.dim:]
+        scaled_x    = scale_x(self.train_x, log_lscales)
+        Phis        = self.calc_Phi(w, scaled_x)
+        losses      = self.loss(self.theta)
+        if(self.debug):
+            np.savetxt('train_x', train_x)
+            np.savetxt('train_y', train_y)
+            np.savetxt('loss', losses)
+            np.savetxt('theta', self.theta)
+            for i in range(self.num_obj):
+                np.savetxt('Phi_train' + str(i), Phis[i])
 
     def predict(self):
         pass
