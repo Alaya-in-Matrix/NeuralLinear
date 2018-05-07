@@ -129,9 +129,9 @@ class DSK_GP:
         if(np.isnan(neg_likelihood)):
             neg_likelihood = np.inf
         
-        l1_reg = self.l1 * np.abs(w).sum();
-        l2_reg = self.l2 * np.dot(w.reshape(1, w.size), w.reshape(w.size, 1))
-        loss   = neg_likelihood + l1_reg + l2_reg
+        l1_reg         = self.l1 * np.abs(w).sum();
+        l2_reg         = self.l2 * np.dot(w.reshape(1, w.size), w.reshape(w.size, 1))
+        neg_likelihood = neg_likelihood + l1_reg + l2_reg
 
         # refresh current best
         if neg_likelihood < self.loss:
