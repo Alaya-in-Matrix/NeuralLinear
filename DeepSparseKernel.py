@@ -35,13 +35,12 @@ def erf(x):
     return sign*y
 
 class NN:
-    def __init__(self,dim, layer_sizes, activations):
+    def __init__(self, layer_sizes, activations):
         self.num_layers  = np.copy(len(layer_sizes))
         self.layer_sizes = np.copy(layer_sizes)
         self.activation  = activations
-        self.dim         = dim
-    def num_param(self):
-        xs = [self.dim];
+    def num_param(self, xdim):
+        xs = [xdim];
         np = 0;
         for ls in self.layer_sizes:
             xs.append(ls)
@@ -64,6 +63,17 @@ class NN:
             start_idx   += num_w_layer
         return out
 
+class ComposeNN(NN):
+    def __init__(self, nns):
+        """ 
+        nns: a list of NN 
+        """ 
+        self.num_nn      = len(nns)
+        self.layer_sizes = []
+        self.activation  = []
+        for i in range(num_nn):
+            self.layer_sizes += nns[i].layer_sizes
+            self.activation  += nns[i].activations
 
 def chol_solve(L, y):
     """
@@ -84,8 +94,8 @@ class DSK_GP:
         self.mean      = np.mean(train_y)
         self.dim       = self.train_x.shape[0]
         self.num_train = self.train_x.shape[1]
-        self.nn        = NN(self.dim, layer_sizes, activations)
-        self.num_param = 2 + self.dim + self.nn.num_param() # noise + variance + lengthscales + NN weights
+        self.nn        = NN(layer_sizes, activations)
+        self.num_param = 2 + self.dim + self.nn.num_param(self.dim) # noise + variance + lengthscales + NN weights
         self.m         = layer_sizes[-1];
         self.loss      = np.inf
         self.bfgs_iter = bfgs_iter;
@@ -187,3 +197,39 @@ class DSK_GP:
         py          = self.mean + Phi_test.T.dot(self.alpha)
         ps2         = sn2 + sn2 * np.diagonal(Phi_test.T.dot(chol_solve(self.LA, Phi_test)));
         return py, ps2
+
+
+class MODSK:
+    def __init__(self, train_x, train_y, shared_nn, non_shared_nns, max_iter = 100, l1 = 0, l2 = 0, debug=False): 
+        if(train_x.ndim != 2 or train_y.ndim != 2):
+            print("train_x.ndim != 2 or train_y.ndim != 2")
+            sys.exit(1)
+        if(train_x.shape[1] != train_y.shape[0]):
+            print("train_x.shape[1] != train_y.shape[0]")
+            sys.exit(1)
+        self.train_x        = np.copy(train_x)
+        self.train_y        = np.copy(train_y)
+        self.dim            = self.train_x.shape[0]
+        self.num_train      = self.train_x.shape[1]
+        self.num_obj        = self.train_y.shape[1]
+        self.means          = np.mean(self.train_y, axis=0)
+        self.stds           = np.std(self.train_y, axis=0)
+        self.train_y        = (self.train_y - self.means) / self.stds # standardize output
+        self.debug          = debug
+        self.l1             = l1
+        self.l2             = l2
+        self.shared_nn      = shared_nn
+        self.non_shared_nns = non_shared_nns
+        self.num_param      = self.calc_num_params()
+
+    def calc_num_params(self):
+        pass
+
+    def loss(self, theta):
+        pass
+
+    def fit(self):
+        pass
+
+    def predict(self):
+        pass

@@ -47,8 +47,8 @@ np.savetxt('theta', gp.theta)
 np.savetxt('Phi_train', Phi_train)
 np.savetxt('Phi_test', Phi_test)
 
-# plt.plot(test_y.reshape(test_y.size), py.reshape(py.size), 'r.', train_y.reshape(train_y.size), py_train.reshape(train_y.size), 'b.')
-# plt.show()
+plt.plot(test_y.reshape(test_y.size), py.reshape(py.size), 'r.', train_y.reshape(train_y.size), py_train.reshape(train_y.size), 'b.')
+plt.show()
 
 gp.debug = True
 print(gp.log_likelihood(gp.theta))
