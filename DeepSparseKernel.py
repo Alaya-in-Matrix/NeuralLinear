@@ -358,9 +358,8 @@ class MODSK:
         theta0         = theta.copy()
         self.best_loss = np.inf
         def lossfit(theta):
-            w      = theta[2+self.dim:]
             loss   = sum(self.loss(theta))
-
+            w      = theta[2*self.num_obj+self.dim:]
             wnb    = self.w_nobias(w)
             l1_reg = self.l1 * np.abs(wnb).sum();
             l2_reg = self.l2 * np.dot(wnb, wnb)
@@ -387,8 +386,25 @@ class MODSK:
             print("Exception caught, L-BFGS early stopping...")
             if self.debug:
                 print(traceback.format_exc())
+        
+        print("Optimized")
+        log_sns, log_sps, log_lscales, ws = self.split_theta(self.theta)
+        scaled_x                          = scale_x(self.train_x, log_lscales)
+        Phis                              = self.calc_Phi(ws, scaled_x)
+        self.Phis                         = Phis
+        self.LAs                          = []
+        self.alphas                       = []
+        for i in range(self.num_obj):
+            Phi          = Phis[i]
+            sn2          = np.exp(2 * log_sns[i])
+            sp2          = np.exp(2 * log_sps[i])
+            m            = Phi.shape[0]
+            A            = np.dot(Phi, Phi.T) + (sn2 * m / sp2) * np.eye(m);
+            LA           = np.linalg.cholesky(A)
+            self.LAs    += [LA]
+            self.alphas += [chol_solve(LA, np.dot(Phi, self.train_y[:, i]))]
 
-    def predict(self):
+    def predict(self, x):
         pass
 
 # TODO: # https://towardsdatascience.com/random-initialization-for-neural-networks-a-thing-of-the-past-bfcdd806bf9e

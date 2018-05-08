@@ -29,7 +29,7 @@ non_shared_nns = []
 for i in range(num_obj):
     non_shared_nns += [dsk.NN(non_shared_layers_sizes, non_shared_activations)]
 
-modsk = dsk.MODSK(train_x, train_y, shared_nn, non_shared_nns, debug=False, max_iter=400, l1=0, l2=0.1)
+modsk = dsk.MODSK(train_x, train_y, shared_nn, non_shared_nns, debug=True, max_iter=400, l1=0, l2=0.1)
 
 theta = modsk.rand_theta()
 modsk.fit(theta)
@@ -49,4 +49,6 @@ if(modsk.debug):
     np.savetxt('train_y_std',  modsk.stds)
     np.savetxt('theta',        modsk.theta)
     np.savetxt('loss',         losses.reshape(losses.size))
+
+
 print("Finished")
