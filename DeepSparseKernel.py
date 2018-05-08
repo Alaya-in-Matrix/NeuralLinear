@@ -115,6 +115,16 @@ class DSK_GP:
         self.train_y.reshape(1, train_y.size)
         self.train_y_zero = self.train_y - self.mean;
 
+    def rand_theta(self, scale=0.1):
+        """ 
+        Generate an initial theta, the weights of NN are randomly initialized
+        """
+        theta = scale * np.random.randn(self.num_param)
+        theta[0] = np.log(np.std(self.train_y) / 2)
+        theta[1] = np.log(np.std(self.train_y))
+        for i in range(self.dim):
+            theta[2 *  + i] = np.maximum(-100, np.log(0.5 * (self.train_x[i, :].max() - self.train_x[i, :].min())))
+        return theta
 
     def calc_Phi(self, w, x):
         Phi = self.nn.predict(w, x);
@@ -147,7 +157,6 @@ class DSK_GP:
             neg_likelihood = np.inf
         
         w_nobias       = self.nn.w_nobias(w, self.dim);
-        print("Size is %d, %d" % (w_nobias.size, w.size))
         l1_reg         = self.l1 * np.abs(w_nobias).sum()
         l2_reg         = self.l2 * np.dot(w_nobias, w_nobias)
         neg_likelihood = neg_likelihood + l1_reg + l2_reg
@@ -296,6 +305,20 @@ class MODSK:
         log_lscales = theta[2*num_obj:2*num_obj+self.dim]
         ws          = theta[2*num_obj+self.dim:]
         return (log_sns, log_sps, log_lscales, ws)
+
+    def rand_theta(self, scale=0.1):
+        """ 
+        Generate an initial theta, the weights of NN are randomly initialized
+        """
+        theta = scale * np.random.randn(self.num_param)
+        # noises and self covariances
+        for i in range(self.num_obj):
+            theta[i]                = np.log(np.std(self.train_y[:, i]) / 2)
+            theta[self.num_obj + i] = np.log(np.std(self.train_y[:, i]))
+        # lengthscales
+        for i in range(self.dim):
+            theta[2 * self.num_obj + i] = np.maximum(-100, np.log(0.5 * (self.train_x[i, :].max() - self.train_x[i, :].min())))
+        return theta
     
     def loss(self, theta):
         """
@@ -350,11 +373,12 @@ class MODSK:
         try:
             fmin_l_bfgs_b(lossfit, theta0, gloss, maxiter = self.max_iter, m = 100, iprint=1)
         except np.linalg.LinAlgError:
+            print("Increase noise term and re-optimization")
             theta0 = np.copy(self.theta)
             for i in range(self.num_obj):
                 theta0[i] = theta0[i] + np.log(10)
             try:
-                fmin_l_bfgs_b(lossfit, theta0, gloss, maxiter = self.max_iter, m = 100, iprint=1)
+                fmin_l_bfgs_b(lossfit, theta0, gloss, maxiter = self.max_iter, m = 10, iprint=1)
             except:
                 print("Exception caught, L-BFGS early stopping...")
                 if self.debug:

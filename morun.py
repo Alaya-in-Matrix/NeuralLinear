@@ -29,20 +29,9 @@ non_shared_nns = []
 for i in range(num_obj):
     non_shared_nns += [dsk.NN(non_shared_layers_sizes, non_shared_activations)]
 
-# def __init__(self, train_x, train_y, shared_nn, non_shared_nns, max_iter = 100, l1 = 0, l2 = 0, debug=False): 
 modsk = dsk.MODSK(train_x, train_y, shared_nn, non_shared_nns, debug=False, max_iter=400, l1=0, l2=0.1)
 
-# random initialization of weights
-scale = 0.1
-theta = scale * np.random.randn(modsk.num_param)
-
-# noises
-for i in range(num_obj):
-    theta[i]           = np.log(np.std(train_y[:, i]) / 2)
-    theta[num_obj + i] = np.log(np.std(train_y[:, i]))
-for i in range(dim):
-    theta[2 * num_obj + i] = np.maximum(-100, np.log(0.5 * (train_x[i, :].max() - train_x[i, :].min())))
-
+theta = modsk.rand_theta()
 modsk.fit(theta)
 
 log_sns, log_sps, log_lscales, ws = modsk.split_theta(modsk.theta)
