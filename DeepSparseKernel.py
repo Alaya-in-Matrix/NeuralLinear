@@ -425,20 +425,24 @@ class MODSK:
 
     def mix_predict(self, K, x):
         # TODO: this version can not be paralleled, as different threads would share the same self.theta
-        pys  = [];
-        ps2s = [];
+        pys    = []
+        ps2s   = []
+        losses = []
         for i in range(K):
             theta   = self.rand_theta()
             self.fit(theta)
             py_i, ps2_i  = self.predict(x)
             pys         += [py_i]
             ps2s        += [ps2_i]
+            losses      += [self.best_loss[0][0]]
         py  = np.zeros((x.shape[1], self.num_obj))
         ps2 = np.zeros((x.shape[1], self.num_obj))
         for i in range(K):
             py  += pys[i] / K;
             ps2 += (ps2s[i] + pys[i]**2) / K
         ps2 -= py**2
+        print("losses:")
+        print(losses)
         return py, ps2
 
 # TODO: # https://towardsdatascience.com/random-initialization-for-neural-networks-a-thing-of-the-past-bfcdd806bf9e
