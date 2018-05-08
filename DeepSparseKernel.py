@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import math
 import sys
 from scipy.optimize import fmin_cg, fmin_l_bfgs_b, fmin_ncg
+import traceback
 
 def tanh(x):
     return np.tanh(x)
@@ -142,7 +143,7 @@ class DSK_GP:
 
         return neg_likelihood
 
-    def fit(self, theta, optimize=True):
+    def fit(self, theta):
         theta0     = theta.copy()
         self.loss  = np.inf
         self.theta = theta0;
@@ -151,11 +152,21 @@ class DSK_GP:
             return nlz
         gloss      = grad(loss)
         try:
-            if optimize:
-                fmin_l_bfgs_b(loss, theta0, gloss, maxiter = self.bfgs_iter, m = 100, iprint=1)
+            fmin_l_bfgs_b(loss, theta0, gloss, maxiter = self.bfgs_iter, m = 100, iprint=1)
+        except np.linalg.LinAlgError:
+            print("Increase noise term and re-optimization")
+            theta0     = np.copy(self.theta);
+            theta0[0] += np.log(10);
+            try:
+                fmin_l_bfgs_b(loss, theta0, gloss, maxiter = self.bfgs_iter, m = 10, iprint=1)
+            except:
+                print("Exception caught, L-BFGS early stopping...")
+                if self.debug:
+                    print(traceback.format_exc())
         except:
             print("Exception caught, L-BFGS early stopping...")
-            print(sys.exc_info())
+            if self.debug:
+                print(traceback.format_exc())
 
         print("Optimized loss is %g" % self.loss)
         if(np.isinf(self.loss) or np.isnan(self.loss)):
@@ -305,9 +316,20 @@ class MODSK:
         gloss = grad(lossfit)
         try:
             fmin_l_bfgs_b(lossfit, theta0, gloss, maxiter = self.max_iter, m = 100, iprint=1)
+        except np.linalg.LinAlgError:
+            theta0 = np.copy(self.theta)
+            for i in range(self.num_obj):
+                theta0[i] = theta0[i] + np.log(10)
+            try:
+                fmin_l_bfgs_b(lossfit, theta0, gloss, maxiter = self.max_iter, m = 100, iprint=1)
+            except:
+                print("Exception caught, L-BFGS early stopping...")
+                if self.debug:
+                    print(traceback.format_exc())
         except:
             print("Exception caught, L-BFGS early stopping...")
-            print(sys.exc_info())
+            if self.debug:
+                print(traceback.format_exc())
 
     def predict(self):
         pass

@@ -32,7 +32,7 @@ theta[0] = np.log(np.std(train_y) / 2) # noise
 theta[1] = np.log(np.std(train_y)) # self covariance
 for i in range(dim):
     theta[1+i] = np.maximum(-100, np.log(0.5 * (train_x[i, :].max() - train_x[i, :].min())));
-gp.fit(theta, optimize=True)
+gp.fit(theta)
 py, ps2             = gp.predict(test_x)
 py_train, ps2_train = gp.predict(train_x)
 
