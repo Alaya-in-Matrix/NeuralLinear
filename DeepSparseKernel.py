@@ -405,6 +405,40 @@ class MODSK:
             self.alphas += [chol_solve(LA, np.dot(Phi, self.train_y[:, i]))]
 
     def predict(self, x):
-        pass
+        num_test = x.shape[1];
+        py       = np.zeros((num_test, self.num_obj))
+        ps2      = np.zeros((num_test, self.num_obj))
+
+        log_sns, log_sps, log_lscales, ws = self.split_theta(self.theta)
+        scaled_x  = scale_x(x, log_lscales)
+        Phis_test = self.calc_Phi(ws, scaled_x)
+
+        for i in range(self.num_obj):
+            Phi_test = Phis_test[i]
+            sn2      = np.exp(2 * log_sns[i])
+            py[:, i] = np.dot(Phi_test.T, self.alphas[i]);
+            for j in range(num_test):
+                ps2[j, i] = sn2 + sn2 * np.dot(Phi_test[:, j].T, chol_solve(self.LAs[i], Phi_test[:, j]))
+        py  = (py * self.stds) + self.means;
+        ps2 = ps2 * (self.stds**2)
+        return py, ps2
+
+    def mix_predict(self, K, x):
+        # TODO: this version can not be paralleled, as different threads would share the same self.theta
+        pys  = [];
+        ps2s = [];
+        for i in range(K):
+            theta   = self.rand_theta()
+            self.fit(theta)
+            py_i, ps2_i  = self.predict(x)
+            pys         += [py_i]
+            ps2s        += [ps2_i]
+        py  = np.zeros((x.shape[1], self.num_obj))
+        ps2 = np.zeros((x.shape[1], self.num_obj))
+        for i in range(K):
+            py  += pys[i] / K;
+            ps2 += (ps2s[i] + pys[i]**2) / K
+        ps2 -= py**2
+        return py, ps2
 
 # TODO: # https://towardsdatascience.com/random-initialization-for-neural-networks-a-thing-of-the-past-bfcdd806bf9e
