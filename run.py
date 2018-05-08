@@ -20,8 +20,8 @@ print(dim)
 print(train_x.shape)
 print(test_x.shape)
 
-layer_sizes = [50, 50, 50]
-activations = [dsk.tanh, dsk.tanh, dsk.tanh]
+layer_sizes = [50, 50, 50, 50]
+activations = [dsk.relu, dsk.tanh, dsk.relu, dsk.tanh]
 scale       = 0.1
 
 dim = train_x.shape[0]
@@ -38,8 +38,8 @@ py_train, ps2_train = gp.predict(train_x)
 
 
 log_lscales = gp.theta[2:2+dim];
-Phi_train   = gp.calc_Phi(gp.theta[2+dim:], gp.scale_x(train_x, log_lscales));
-Phi_test    = gp.calc_Phi(gp.theta[2+dim:], gp.scale_x(test_x, log_lscales));
+Phi_train   = gp.calc_Phi(gp.theta[2+dim:], dsk.scale_x(train_x, log_lscales));
+Phi_test    = gp.calc_Phi(gp.theta[2+dim:], dsk.scale_x(test_x, log_lscales));
 
 np.savetxt('pred_y', py)
 np.savetxt('pred_s2', ps2)
