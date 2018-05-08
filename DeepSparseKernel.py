@@ -49,6 +49,22 @@ class NN:
             np += (1+xs[i]) * xs[i+1]
         return np
 
+    def w_nobias(self, w, dim):
+        """
+        return weights without bias, it can be used for the L1/L2 regularizaton
+        """
+        prev_size = dim
+        start_idx = 0;
+        wnb       = np.array([])
+        for i in range(self.num_layers):
+            layer_size   = self.layer_sizes[i]
+            num_w_layer  = (prev_size+1) * layer_size;
+            w_layer      = np.reshape(w[start_idx:start_idx+num_w_layer], (prev_size+1, layer_size))[:prev_size, :];
+            wnb          = np.concatenate((wnb, w_layer.reshape(w_layer.size)));
+            prev_size    = layer_size
+            start_idx   += num_w_layer
+        return wnb
+
     def predict(self, w, x):
         dim, num_data = x.shape
         out           = x;
@@ -130,8 +146,10 @@ class DSK_GP:
         if(np.isnan(neg_likelihood)):
             neg_likelihood = np.inf
         
-        l1_reg         = self.l1 * np.abs(w).sum();
-        l2_reg         = self.l2 * np.dot(w.reshape(1, w.size), w.reshape(w.size, 1))
+        w_nobias       = self.nn.w_nobias(w, self.dim);
+        print("Size is %d, %d" % (w_nobias.size, w.size))
+        l1_reg         = self.l1 * np.abs(w_nobias).sum()
+        l2_reg         = self.l2 * np.dot(w_nobias, w_nobias)
         neg_likelihood = neg_likelihood + l1_reg + l2_reg
 
         # refresh current best
@@ -240,6 +258,19 @@ class MODSK:
             num_param += self.non_shared_nns[i].num_param(size_last_layer_shared)
         return num_param
 
+    def w_nobias(self, ws):
+        w_shared     = ws[:self.shared_nn.num_param(self.dim)]
+        w_non_shared = ws[self.shared_nn.num_param(self.dim):]
+        m_shared     = self.shared_nn.layer_sizes[-1]
+        wnb          = self.shared_nn.w_nobias(w_shared, self.dim)
+        start_idx    = 0
+        for nn in self.non_shared_nns:
+            w_tmp = w_non_shared[start_idx: start_idx + nn.num_param(m_shared)]
+            wnb   = np.concatenate((wnb, nn.w_nobias(w_tmp, m_shared)))
+            start_idx = start_idx + w_tmp.size
+            if self.debug:
+                assert(w_tmp.size == nn.num_param(m_shared))
+        return wnb
     def calc_Phi(self, ws, x):
         w_shared     = ws[:self.shared_nn.num_param(self.dim)]
         w_non_shared = ws[self.shared_nn.num_param(self.dim):]
@@ -306,8 +337,10 @@ class MODSK:
         def lossfit(theta):
             w      = theta[2+self.dim:]
             loss   = sum(self.loss(theta))
-            l1_reg = self.l1 * np.abs(w).sum();
-            l2_reg = self.l2 * np.dot(w.reshape(1, w.size), w.reshape(w.size, 1))
+
+            wnb    = self.w_nobias(w)
+            l1_reg = self.l1 * np.abs(wnb).sum();
+            l2_reg = self.l2 * np.dot(wnb, wnb)
             loss   = loss + l1_reg + l2_reg
             if loss < self.best_loss:
                 self.best_loss = loss

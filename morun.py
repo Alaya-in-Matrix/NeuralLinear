@@ -30,7 +30,7 @@ for i in range(num_obj):
     non_shared_nns += [dsk.NN(non_shared_layers_sizes, non_shared_activations)]
 
 # def __init__(self, train_x, train_y, shared_nn, non_shared_nns, max_iter = 100, l1 = 0, l2 = 0, debug=False): 
-modsk = dsk.MODSK(train_x, train_y, shared_nn, non_shared_nns, debug=True, max_iter=400)
+modsk = dsk.MODSK(train_x, train_y, shared_nn, non_shared_nns, debug=False, max_iter=400, l1=0, l2=0.1)
 
 # random initialization of weights
 scale = 0.1
