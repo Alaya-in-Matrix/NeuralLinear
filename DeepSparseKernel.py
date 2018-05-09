@@ -306,7 +306,7 @@ class MODSK:
         ws          = theta[2*num_obj+self.dim:]
         return (log_sns, log_sps, log_lscales, ws)
 
-    def rand_theta(self, scale=0.1):
+    def rand_theta(self, scale=1):
         """ 
         Generate an initial theta, the weights of NN are randomly initialized
         """
@@ -423,13 +423,13 @@ class MODSK:
         ps2 = ps2 * (self.stds**2)
         return py, ps2
 
-    def mix_predict(self, K, x):
+    def mix_predict(self, K, x, scale):
         # TODO: this version can not be paralleled, as different threads would share the same self.theta
         pys    = []
         ps2s   = []
         losses = []
         for i in range(K):
-            theta   = self.rand_theta()
+            theta   = self.rand_theta(scale=scale)
             self.fit(theta)
             py_i, ps2_i  = self.predict(x)
             pys         += [py_i]
