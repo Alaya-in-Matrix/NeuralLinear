@@ -1,0 +1,8 @@
+num_shared_layer     = 2
+num_non_shared_layer = 2
+hidden_shared        = 50
+hidden_non_shared    = 50
+l1                   = 0.0
+l2                   = 0.0
+scale                = 1
+max_iter             = 200
