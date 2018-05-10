@@ -23,6 +23,17 @@ l2                   = conf["l2"]
 scale                = conf["scale"]
 max_iter             = conf["max_iter"]
 K                    = conf["K"]
+activation           = conf["activation"];
+
+act_f = dsk.tanh
+if activation == "relu":
+    act_f = dsk.relu
+elif activation == "erf":
+    act_f = dsk.erf
+elif activation == "sigmoid":
+    act_f = dsk.sigmoid
+else:
+    act_f = dsk.tanh
 
 train_x              = trans(np.loadtxt('train_x')).T
 train_y              = trans(np.loadtxt('train_y'))
