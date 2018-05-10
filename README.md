@@ -24,3 +24,4 @@ Deep sparse kernel for scalable and flexible multi-output Gaussian process regre
 - Learning covariance between tasks
 - Other arch: cross-stich
 - Loss function
+- Advanced NN training: batch-normalization, dropout
