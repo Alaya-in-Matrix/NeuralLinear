@@ -25,3 +25,4 @@ Deep sparse kernel for scalable and flexible multi-output Gaussian process regre
 - Other arch: cross-stich
 - Loss function
 - Advanced NN training: batch-normalization, dropout
+- Hyperparameters and architectures: use BO to optimize it
