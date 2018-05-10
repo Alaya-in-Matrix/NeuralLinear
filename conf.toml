@@ -6,3 +6,4 @@ l1                   = 0.0
 l2                   = 0.0
 scale                = 1
 max_iter             = 200
+K                    = 4

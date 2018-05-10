@@ -22,6 +22,7 @@ l1                   = conf["l1"]
 l2                   = conf["l2"]
 scale                = conf["scale"]
 max_iter             = conf["max_iter"]
+K                    = conf["K"]
 
 train_x              = trans(np.loadtxt('train_x')).T
 train_y              = trans(np.loadtxt('train_y'))
@@ -44,7 +45,7 @@ for i in range(num_obj):
 
 modsk = dsk.MODSK(train_x, train_y, shared_nn, non_shared_nns, debug=True, max_iter=max_iter, l1=l1, l2=l2)
 
-py, ps2 = modsk.mix_predict(8, test_x, scale=scale);
+py, ps2 = modsk.mix_predict(K, test_x, scale=scale);
 np.savetxt('pred_y', py);
 np.savetxt('pred_s2', ps2);
 print("Finished")
