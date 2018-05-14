@@ -7,7 +7,6 @@ Deep sparse kernel for scalable and flexible multi-output Gaussian process regre
 ## To compare
 
 - [mtgp(Multi task gaussian process)](https://github.com/ebonilla/mtgp)
-- GPy
 - [Sparse Convolved Gaussian Processes for Multi-ouput regression](https://github.com/SheffieldML/multigp)
 - [Collaborative Multi-output Gaussian Processes](https://github.com/trungngv/cogp)
 - GPRN: gaussian process regression network
