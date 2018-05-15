@@ -1,0 +1,251 @@
+\section{Experimental Results}
+
+\subsection{ENB}\label{enb}
+
+\begin{itemize}
+\item
+  700 training
+\item
+  68 test
+\item
+  8 inputs
+\item
+  2 outputs
+\end{itemize}
+
+\begin{longtable}[]{@{}ll@{}}
+\caption{Training time for ENB dataset (sec)}\tabularnewline
+\toprule
+Algo & Output1\tabularnewline
+\midrule
+\endfirsthead
+\toprule
+Algo & Output1\tabularnewline
+\midrule
+\endhead
+DSK(proposed) & 1672 \(\pm\) 332\tabularnewline
+IGP & \textbf{357.97} \(\pm\) \textbf{100.67}\tabularnewline
+COGP & 2381.9 \(\pm\) 560.69\tabularnewline
+multigp & 565.12 \(\pm\) 108.08\tabularnewline
+GPRN\_MF & running\tabularnewline
+GPRN\_NPV & running\tabularnewline
+\bottomrule
+\end{longtable}
+
+\begin{longtable}[]{@{}lll@{}}
+\caption{SMSE of ENB data set (small is better)}\tabularnewline
+\toprule
+Algo & Output1 & Output2\tabularnewline
+\midrule
+\endfirsthead
+\toprule
+Algo & Output1 & Output2\tabularnewline
+\midrule
+\endhead
+DSK(proposed) & \textbf{1.5e-3 \(\pm\) 1.6e-4} & \textbf{7.5e-3 \(\pm\)
+1.3e-3}\tabularnewline
+IGP & 1.9e-3 \(\pm\) 0 & 9.1e-3 \(\pm\) 0\tabularnewline
+COGP & 6.0e-3 \(\pm\) 8.8e-4 & 0.014409 \(\pm\) 8.3e-4\tabularnewline
+multigp & 0.71 \(\pm\) 3.8e-5 & 1.2085 \(\pm\) 4.1e-5\tabularnewline
+GPRN\_MF & running & running\tabularnewline
+GPRN\_NPV & running & running\tabularnewline
+\bottomrule
+\end{longtable}
+
+\begin{longtable}[]{@{}lll@{}}
+\caption{LL of ENB data set (large is better)}\tabularnewline
+\toprule
+Algo & Output1 & Output2\tabularnewline
+\midrule
+\endfirsthead
+\toprule
+Algo & Output1 & Output2\tabularnewline
+\midrule
+\endhead
+DSK(proposed) & \textbf{-0.33 \(\pm\) 0.06} & \textbf{-0.97 \(\pm\)
+0.11}\tabularnewline
+IGP & -0.53 \(\pm\) 0 & -1.012 \(\pm\) 0\tabularnewline
+COGP & -1.34 \(\pm\) 0.15 & -2.08 \(\pm\) 0.21\tabularnewline
+multigp & -1.56 \(\pm\) 3.63e-3 & -1.6565 \(\pm\) 6.3e-4\tabularnewline
+GPRN\_MF & running & running\tabularnewline
+GPRN\_NPV & running & running\tabularnewline
+\bottomrule
+\end{longtable}
+
+\subsection{SARCOS}\label{sarcos}
+
+\begin{itemize}
+\item
+  44484 training
+\item
+  4449 test
+\item
+  21 inputs
+\item
+  2 outputs
+\item
+  multigp: subset of data: use 2000 training set
+\item
+  GPRN-AVI: NIPS2017, black-box likelihood, M/N = 0.04
+\item
+  multigp gives zero prediction, underfitting
+\end{itemize}
+
+\begin{longtable}[]{@{}ll@{}}
+\caption{Training time for SARCOS dataset (sec)}\tabularnewline
+\toprule
+Algo & Output1\tabularnewline
+\midrule
+\endfirsthead
+\toprule
+Algo & Output1\tabularnewline
+\midrule
+\endhead
+DSK(proposed) & 12565 \(\pm\) 318.61\tabularnewline
+IGP & 6719.2 \(\pm\) 576.13\tabularnewline
+COGP & 13392 \(\pm\) 1002\tabularnewline
+multigp & 17675 \(\pm\) 1469.8\tabularnewline
+GPRN\_MF & running\tabularnewline
+GPRN\_NPV & running\tabularnewline
+\bottomrule
+\end{longtable}
+
+\begin{longtable}[]{@{}lll@{}}
+\caption{SMSE of SARCOS data set (small is better)}\tabularnewline
+\toprule
+Algo & Output1 & Output2\tabularnewline
+\midrule
+\endfirsthead
+\toprule
+Algo & Output1 & Output2\tabularnewline
+\midrule
+\endhead
+DSK(proposed) & 1.6e-3 \(\pm\) 3.5e-5 & 3.1e-3 \(\pm\)
+5.6e-5\tabularnewline
+IGP & 4.4e-3 \(\pm\) 1.5e-4 & 7.9e-3 \(\pm\) 2.6e-4\tabularnewline
+COGP & 8.6e-3 \(\pm\) 2.4e-4 & 1.5e-2 \(\pm\) 4.3e-4\tabularnewline
+multigp & 4.7 \(\pm\) 0.025 & 3.38 \(\pm\) 0.02\tabularnewline
+GPRN\_MF & &\tabularnewline
+GPRN\_NPV & &\tabularnewline
+COGP2000 & 0.2631 & 1.3e-2\tabularnewline
+GPRN\_AVI & 8e-3 & 1e-2\tabularnewline
+\bottomrule
+\end{longtable}
+
+\begin{longtable}[]{@{}lll@{}}
+\caption{LL of SARCOS data set (large is better)}\tabularnewline
+\toprule
+Algo & Output1 & Output2\tabularnewline
+\midrule
+\endfirsthead
+\toprule
+Algo & Output1 & Output2\tabularnewline
+\midrule
+\endhead
+DSK(proposed) & -0.8036 0.011126 & 0.50886 0.008133\tabularnewline
+IGP & -1.0613 0.0094117 & 0.23633 0.012385\tabularnewline
+COGP & -2.4751 0.057678 & -2.4018 0.096996\tabularnewline
+multigp & -4.6293 0.012801 & -2.8741 0.011023\tabularnewline
+GPRN\_MF &\tabularnewline
+GPRN\_NPV &\tabularnewline
+\bottomrule
+\end{longtable}
+
+\subsection{DAC14}\label{dac14}
+
+\begin{itemize}
+\item
+  2000 training
+\item
+  8000 test
+\item
+  10 inputs
+\item
+  15 outputs
+\end{itemize}
+
+\begin{longtable}[]{@{}llll@{}}
+\caption{SMSE of DAC14 data set (small is better)}\tabularnewline
+\toprule
+Output & DSK & IGP & COGP\tabularnewline
+\midrule
+\endfirsthead
+\toprule
+Output & DSK & IGP & COGP\tabularnewline
+\midrule
+\endhead
+O1 & 0.0006386 \(\pm\) 3.47e-05 & 0.20062 \(\pm\) 0.001874 & 0.1949
+\(\pm\) 0.0032758\tabularnewline
+O2 & 0.00060044 \(\pm\) 3.87e-05 & 0.17936 \(\pm\) 0.0061411 & 0.14995
+\(\pm\) 0.0033665\tabularnewline
+O3 & 0.0005432 \(\pm\) 4.15e-05 & 0.084277 \(\pm\) 0.0033901 & 0.083916
+\(\pm\) 0.0016328\tabularnewline
+O4 & 0.00023451 \(\pm\) 1.69e-05 & 0.21836 \(\pm\) 0.0036518 & 0.053455
+\(\pm\) 0.0014125\tabularnewline
+O5 & 0.00028062 \(\pm\) 2.12e-05 & 0.39902 \(\pm\) 0.0053257 & 0.087429
+\(\pm\) 0.0014662\tabularnewline
+O6 & 0.00022486 \(\pm\) 1.44e-05 & 0.23514 \(\pm\) 0.0024104 & 0.049189
+\(\pm\) 0.00096413\tabularnewline
+O7 & 0.0012777 \(\pm\) 9.58e-05 & 0.62908 \(\pm\) 0.019796 & 0.22151
+\(\pm\) 0.0031278\tabularnewline
+O8 & 0.0011141 \(\pm\) 1.38e-04 & 0.44603 \(\pm\) 0.013225 & 0.15394
+\(\pm\) 0.0017331\tabularnewline
+O9 & 0.0010911 \(\pm\) 1.33e-04 & 0.12342 \(\pm\) 0.0020509 & 0.072946
+\(\pm\) 0.0015656\tabularnewline
+O10 & 0.0011412 \(\pm\) 9.80e-05 & 0.39561 \(\pm\) 0.076716 & 0.24622
+\(\pm\) 0.0035833\tabularnewline
+O11 & 0.0010203 \(\pm\) 1.11e-04 & 0.46908 \(\pm\) 0.069209 & 0.18068
+\(\pm\) 0.0038243\tabularnewline
+O12 & 0.0009737 \(\pm\) 6.34e-05 & 0.38504 \(\pm\) 0.08685 & 0.10082
+\(\pm\) 0.0016292\tabularnewline
+O13 & 0.00031683 \(\pm\) 2.34e-05 & 0.091977 \(\pm\) 0.0037746 &
+0.091782 \(\pm\) 0.00096207\tabularnewline
+O14 & 0.0003639 \(\pm\) 2.87e-05 & 0.13584 \(\pm\) 0.0052394 & 0.10736
+\(\pm\) 0.0023873\tabularnewline
+O15 & 0.00027142 \(\pm\) 1.40e-05 & 0.059215 \(\pm\) 0.00042614 &
+0.058508 \(\pm\) 0.00083178\tabularnewline
+\bottomrule
+\end{longtable}
+
+\begin{longtable}[]{@{}llll@{}}
+\caption{LL of DAC14 data set (large is better)}\tabularnewline
+\toprule
+Output & DSK & IGP & COGP\tabularnewline
+\midrule
+\endfirsthead
+\toprule
+Output & DSK & IGP & COGP\tabularnewline
+\midrule
+\endhead
+O1 & 2.35e+00 \(\pm\) 3.27e-02 & -4.33e-01 \(\pm\) 4.82e-03 &
+-4.7172e+00 1.6908-01\tabularnewline
+O2 & 2.49e+00 \(\pm\) 2.54e-02 & -1.76e-01 \(\pm\) 7.86e-03 &
+-3.3229e+00 2.4696-01\tabularnewline
+O3 & 2.38e+00 \(\pm\) 2.61e-02 & 1.01e-01 \(\pm\) 1.05e-02 & -3.1932e+00
+1.4638-01\tabularnewline
+O4 & 3.02e+00 \(\pm\) 3.78e-02 & 1.07e+00 \(\pm\) 1.76e-02 & -2.0809e+00
+1.4005-01\tabularnewline
+O5 & 3.05e+00 \(\pm\) 3.73e-02 & 1.10e+00 \(\pm\) 3.51e-02 & -2.1263e+00
+1.4461-01\tabularnewline
+O6 & 3.02e+00 \(\pm\) 2.95e-02 & 9.50e-01 \(\pm\) 1.14e-02 & -1.8309e+00
+2.0760-01\tabularnewline
+O7 & 2.16e+00 \(\pm\) 4.25e-02 & 7.43e-01 \(\pm\) 4.67e-02 & -5.7413e+00
+4.0098-01\tabularnewline
+O8 & 2.35e+00 \(\pm\) 5.49e-02 & 1.00e+00 \(\pm\) 4.11e-02 & -4.7621e+00
+3.6331-01\tabularnewline
+O9 & 2.20e+00 \(\pm\) 3.61e-02 & 1.01e+00 \(\pm\) 2.43e-02 & -2.5308e+00
+1.7943-01\tabularnewline
+O10 & 2.06e+00 \(\pm\) 5.18e-02 & -3.22e-01 \(\pm\) 4.48e-02 &
+-5.0236e+00 3.9745-01\tabularnewline
+O11 & 2.19e+00 \(\pm\) 6.71e-02 & 3.10e-02 \(\pm\) 3.31e-02 &
+-4.0450e+00 1.3477-01\tabularnewline
+O12 & 2.11e+00 \(\pm\) 2.45e-02 & 2.65e-01 \(\pm\) 1.79e-02 &
+-3.7012e+00 2.3693-01\tabularnewline
+O13 & 2.72e+00 \(\pm\) 3.23e-02 & -4.93e-02 \(\pm\) 6.33e-03 &
+-2.7383e+00 1.6486-01\tabularnewline
+O14 & 2.74e+00 \(\pm\) 3.52e-02 & 4.61e-02 \(\pm\) 5.50e-03 &
+-2.3820e+00 2.4257-01\tabularnewline
+O15 & 2.73e+00 \(\pm\) 2.29e-02 & 2.00e-01 \(\pm\) 4.21e-03 &
+-2.4818e+00 1.7261-01\tabularnewline
+\bottomrule
+\end{longtable}

@@ -2,6 +2,7 @@
 
 \subsection{Scalar output Gaussian Process Regression}
 
+
 Given training set $D = \{X, \bm{y}\}$ where $X = \{\bm{x}_1,~\dots~\bm{x}_N\}$, and $\bm{y} = \{y_1,~\dots~y_N\}$, we assume the target value $y$ is generated
 by a latent function $f(\bm{x})$ such with addictive noise $\epsilon \sim N(0, \sigma_n^2)$ such that
 \begin{equation}
@@ -36,21 +37,32 @@ where $\Lambda = \mathrm{diag}(l_1, \dots, l_d)$ is a diagonal matrix and $l_i$ 
     \log p(\bm{y} | X, \bm{\theta}) = -\frac{1}{2}(\bm{y}^T K_{\bm{\theta}}^{-1} \bm{y} + \log |K_{\theta}| + N \log(2 \pi))
 \end{equation}
 
-Where $K_{\bm{\theta}}$ is the covariance matrix of the training input calculated by the kernel function. 
+Where $K_{\bm{\theta}}$ is the covariance matrix of the training input calculated by the kernel function.
 
 \subsection{NN-GP}
 
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=\columnwidth]{./img/NN-GP.png}
+    \caption{Architechure of the Gaussian process model with kernel characterized by deep neural network}
+\end{figure}
+
+A Gaussian process model can also be derived from a weight space view, let $\phi(\bm{x}): R^D \rightarrow R^M$ be a feature map from D-dimensional input space to the M-dimentional feature space, we assume that the latent function $f(\bm{x})$ is a linear combination of the nonlinear features, and the observed target values are generated from $f(\bm{x}$ with addictive noise:
 
 \begin{equation}
-    f(\bm{x}) = \bm{w}^T \phi(\bm{x})
+    \label{eq:weightspace}
+    \begin{array}{lll}
+        f(\bm{x}) &=&    \bm{w}^T \phi(\bm{x})   \\
+        y_i       &=&    f(\bm{x_i}) + \epsilon  \\
+        \epsilon  &\sim& N(0, \sigma_n^2)
+    \end{array}
 \end{equation}
 
-\begin{equation}
-    \bm{w} \sim N(0, \Sigma_p)
-\end{equation}
+If a zeros mean Gaussian prior with covariance matrix $\Sigma_p$ is put on the weights $\bm{w} \sim N(0, \Sigma_p)$, then it can be proved \cite{GPML} that $f$ follows a Gaussian process $f \sim \mathcal{GP}(0, k)$, with the kernel function $k$ defined as:
 
 \begin{equation}
-    k(\bm{x}, \bm{y}) = \phi(x)^T \Sigma_p \phi(y)
+    \label{eq:kernel_from_weight}
+    k(\bm{x}, \bm{y}) = \phi(\bm{x})^T \Sigma_p \phi(\bm{y})
 \end{equation}
 
 \begin{equation}
@@ -74,11 +86,6 @@ Where $K_{\bm{\theta}}$ is the covariance matrix of the training input calculate
 
 In (IEEE2010), the author propose to use a neural network with one hidden layer as the feature map $\phi(\bm{x})$, in (IJCAI2016), the single hidden layer is extended to multiple layers, a similar work is (DNGO), where bayesian linear regression is performed on the last layer. 
 
-\begin{figure}[!htb]
-    \centering
-    \includegraphics[width=\columnwidth]{./img/NN-GP.png}
-    \caption{Architechure of the Gaussian process model with kernel characterized by deep neural network}
-\end{figure}
 
 \paragraph{Deep ensemble}
 
