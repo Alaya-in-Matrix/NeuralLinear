@@ -1,6 +1,6 @@
 \section{Background}
 
-\subsection{Scalar output Gaussian Process Regression}
+\subsection{Scalar output Gaussian Process Regression}\label{sec:SOGP}
 
 
 Given training set $D = \{X, \bm{y}\}$ where $X = \{\bm{x}_1,~\dots~\bm{x}_N\}$, and $\bm{y} = \{y_1,~\dots~y_N\}$, we assume the target value $y$ is generated
@@ -34,17 +34,19 @@ There are usually some hyperparameters for a GP model, including the noise level
 where $\Lambda = \mathrm{diag}(l_1, \dots, l_d)$ is a diagonal matrix and $l_i$ denotes the length scale of the $i$-th dimension, $\sigma_f$ and $\Lambda$ are the hyperparameters for the kernel. Denote $\bm{\theta}$ as the vector of hyperparameters, the hyperparameters can be learnt via maximum likelihood estimation (MLE) by maximizing the following likelihood function
 
 \begin{equation}
+    \label{eq:GPloglikelihood}
     \log p(\bm{y} | X, \bm{\theta}) = -\frac{1}{2}(\bm{y}^T K_{\bm{\theta}}^{-1} \bm{y} + \log |K_{\theta}| + N \log(2 \pi))
 \end{equation}
 
 Where $K_{\bm{\theta}}$ is the covariance matrix of the training input calculated by the kernel function.
 
-\subsection{NN-GP}
+\subsection{NN-GP}\label{sec:NNGP}
 
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=\columnwidth]{./img/NN-GP.png}
     \caption{Architechure of the Gaussian process model with kernel characterized by deep neural network}
+    \label{fig:NNGP}
 \end{figure}
 
 A Gaussian process model can also be derived from a weight space view, let $\phi(\bm{x}): R^D \rightarrow R^M$ be a feature map from D-dimensional input space to the M-dimentional feature space, we assume that the latent function $f(\bm{x})$ is a linear combination of the nonlinear features, and the observed target values are generated from $f(\bm{x}$ with addictive noise:
@@ -59,43 +61,53 @@ A Gaussian process model can also be derived from a weight space view, let $\phi
 \end{equation}
 
 If a zeros mean Gaussian prior with covariance matrix $\Sigma_p$ is put on the weights $\bm{w} \sim N(0, \Sigma_p)$, then it can be proved \cite{GPML} that $f$ follows a Gaussian process $f \sim \mathcal{GP}(0, k)$, with the kernel function $k$ defined as:
-
 \begin{equation}
     \label{eq:kernel_from_weight}
     k(\bm{x}, \bm{y}) = \phi(\bm{x})^T \Sigma_p \phi(\bm{y})
 \end{equation}
+The GP model defined from finite feature map is called \emph{degenerate} Gaussian process, as the covariance matrix calculated from \fref{eq:kernel_from_weight} would have finite rank $M$.
 
-\begin{equation}
-    \Sigma_p = \mathrm{diag}(\frac{\sigma_p^2}{M})
-\end{equation}
+%XXX: mension the matrix inversion lemma
 
-\begin{equation}
-    \left\{
-        \begin{array}{lll}
-            \mu(\bm{x})      &=& \phi(x)^T A^{-1} \Phi \bm{y} \\
-            \sigma^2(\bm{x}) &=& \sigma_n^2 + \sigma_n^2 \phi(\bm{x})^T A^{-1} \phi(\bm{x})
-        \end{array}
-    \right.
-\end{equation}
-
-\begin{equation}
-\end{equation}
-
-\begin{equation}
-\end{equation}
-
-In (IEEE2010), the author propose to use a neural network with one hidden layer as the feature map $\phi(\bm{x})$, in (IJCAI2016), the single hidden layer is extended to multiple layers, a similar work is (DNGO), where bayesian linear regression is performed on the last layer. 
-
-
-\paragraph{Deep ensemble}
-
+We set $\Sigma_p$ to a diagonal matrix $\Sigma_p = \frac{\sigma_p}{M} I$, then the predictive distribution of \fref{eq:GPRPred} can be re-formulated as:
 \begin{equation}
     \left\{
         \begin{array}{lll}
-            \mu_*(\bm{x})      &=& \frac{1}{K} \sum_k \mu_k(\bm{x}) \\
-            \sigma_*^2(\bm{x}) &=& \frac{1}{K} \sum_k (\mu_k^2(\bm{x}) + \sigma_k^2(\bm{x})) - \mu_*^2(\bm{x})
+            \mu(\bm{x})      &= & \phi(x)^T A^{-1} \Phi \bm{y} \\
+            \sigma^2(\bm{x}) &= & \sigma_n^2 + \sigma_n^2 \phi(\bm{x})^T A^{-1} \phi(\bm{x}) \\
+            \Phi             &= & (\phi(\bm{x}_1),~\dots~,\phi(\bm{x}_N)) \\
+            A                &= & \Phi \Phi^T + \frac{M \sigma_n^2}{\sigma_p^2} I
         \end{array}
     \right.
+    \label{eq:DegeneratePred}
 \end{equation}
 
-In (NIPS2017DeepMind), ...
+Note that the when calculating $\mu(\bm{x})$ and $\sigma^2(\bm{x})$ directly using \fref{eq:GPRPred}, the time complexity would be $O(N)$ and $O(N^2)$ respectively, however, if \fref{eq:DegeneratePred} is used, the time complexity for calculating $\mu(\bm{x})$ and $\sigma^2(\bm{x})$ would be $O(M)$ and $O(M^2)$ as long as $A$ is pre-calculated.
+
+The log likelihood of the training data defined in \fref{eq:GPloglikelihood} can also be re-formulated\cite{lazaro2010marginalized} as\:
+\begin{equation}
+    \label{eq:DegenerateGPloglikelihood}
+    \log p(\bm{y} | X, \bm{\theta}) = -\frac{1}{2\sigma_n^2}(\bm{y}^T\bm{y} - \bm{y}^T \Phi^T A^{-1} \Phi \bm{y}) - \frac{1}{2}\log |A| + \frac{M}{2} \log \frac{M \sigma_n^2}{\sigma_p^2} - \frac{N}{2} \log(2 \pi \sigma_n^2)
+\end{equation}
+where $\theta$ is the vector containg $\sigma_p$, $\sigma_n$ and the parameters of $\phi$. In \fref{eq:GPloglikelihood}, the covariance matrix $K$ is to be inverted, which would take $O(N^3)$ operations, while for \fref{eq:DegenerateGPloglikelihood}, the matrix $A$ is of the size $M \times M$, so the time complexity for calculating \fref{eq:DegenerateGPloglikelihood} is $O(NM^2)$. 
+
+% XXX: the loss function for the 
+It can be seen that GP model can be constructed from a finite feature map, while neural network (NN) is famous for giving effective feature representations, so it is a natural idea to use neural network for the feature map $\phi$. In \cite{lazaro2010marginalized}, the author propose to use a neural network with one hidden layer as the feature map $\phi(\bm{x})$, the parameters of the neural network are calculated by maximizing the likelihood function in \fref{eq:DegenerateGPloglikelihood} with gradient calculated via back-propagation. In \cite{huang2015scalable}, the single hidden layer is extended to multiple layers. The Gaussian process with kernel characterized by neural network is illustrated in \fref{fig:NNGP}. A similar work is (DNGO), a neural network is firstly pre-trained, and then Bayesian linear regression is performed to last layer. 
+
+% \paragraph{Deep ensemble} 
+\subsection{Model averaging to improve the quality of probabilistic neural network models}\label{sec:deepensemble}
+
+When probabilistic models are built from neural networks, a simple model averaging technique\cite{lazaro2010marginalized, huang2015scalable, lakshminarayanan2017simple} can significantly improve the quality of the estimated uncertainty. 
+
+Firstly, $K$ indenpendent probabilistic neural network models are trained with random initialization, each model would give predictive distribution $p(y | \bm{x}, \bm{\theta}_k) = N(\mu_k(\bm{x}), \sigma_k^2(\bm{x}))$ where $\bm{\theta}_k$ is the neural network parameters for the $k$-th model, $\mu_k(\bm{x})$ and $\sigma_k^2(\bm{x})$ are the mean and variance of the corresponding predictive Gaussian distribution. Then the final predictive distribution would be $p(y | \bm{x}) = N(\mu(\bm{x}), \sigma^2(\bm{x})$ where:
+\begin{equation}
+    \left\{
+        \begin{array}{lll}
+            \mu(\bm{x})      &=& \frac{1}{K} \sum_k \mu_k(\bm{x}) \\
+            \sigma^2(\bm{x}) &=& \frac{1}{K} \sum_k (\mu_k^2(\bm{x}) + \sigma_k^2(\bm{x})) - \mu^2(\bm{x})
+        \end{array}
+    \right.
+    \label{eq:deepensemble}
+\end{equation}
+
+In \cite{lazaro2010marginalized, huang2015scalable}, GP models are constructed and the uncertainty is calculated by \fref{eq:DegeneratePred}, while in \cite{lakshminarayanan2017simple}, uncertainty is generated by adversarial training. It is shown that the ensemble technique defined in \fref{eq:deepensemble} can greatly improve the quality of the uncertainty measure, in \cite{lakshminarayanan2017simple}, with $K = 5$, the model-averaging significantly improves the quality of the uncertainty estimation, and outperforms Bayesian-based models like probabilistic backpropagation\cite{hernandez2015probabilistic} and MC-dropout\cite{gal2016dropout}.
