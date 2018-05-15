@@ -36,7 +36,7 @@
 \usepackage{multirow}
 \usepackage{longtable}
 
-\title{Efficient Multi-output Gaussian Process Regression using Deep Neural Network with shared layers}
+\title{Multi-output Gaussian Process Regression using Deep Neural Network with Shared Layers}
 
 % The \author macro works with any number of authors. There are two
 % commands used to separate the names and addresses of multiple
@@ -95,11 +95,14 @@
     compared with these models.
 \end{abstract}
 
-\section{Introduction}
-
+\input{introduction}
 \input{background}
 \input{mogp}
 \input{experiments}
+
+\section{Discussion}
+
+Our model is effective, but it has several limitations, including the loss function, missing data...we plan to improve it in the future. 
 
 
 % XXX:
