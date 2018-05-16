@@ -2,26 +2,25 @@
 
 ## About
 
-Deep sparse kernel for scalable and flexible multi-output Gaussian process regression
+code for the paper "Multi-task Neural Network for Multi-output Gaussian Process Regression"
 
-## To compare
+Abstract:
 
-- [mtgp(Multi task gaussian process)](https://github.com/ebonilla/mtgp)
-- [Sparse Convolved Gaussian Processes for Multi-ouput regression](https://github.com/SheffieldML/multigp)
-- [Collaborative Multi-output Gaussian Processes](https://github.com/trungngv/cogp)
-- GPRN: gaussian process regression network
-- [Efficient multi-task Gaussian process inference with structured residuals](https://github.com/PMBio/pygp_kronsum), the dataset can also be used
-- [SARCOS dataset](http://www.gaussianprocess.org/gpml/data/)
-- [It is all in the noise: Efficient multi-task Gaussian process inference with structured residuals](https://github.com/PMBio/pygp_kronsum)
-
-## Notes about the paper
-
-- See what papers are reviewed in MTL (multi-taske learning) review papers
+The last hidden layer of a neural network can be viewed as a finite feature
+map, from which a degenerate Gaussian process model can be built; on the other
+hands, multiple correlated outputs can be represented by a neural network with
+shared hidden layers. In this paper, we build opon these two ideas, and propose
+a simple multi-output Gaussian process regression model, the kernels of
+multiple outputs are constructed from a multi-task neural network with shared
+hidden layers and task-specific layers. We compare our multi-task neural
+network enhanced Gaussian process (MTNN-GP) model with several multi-output
+Gaussian process models using two public datasets and one examples of
+real-world analog integrated circuits, the results show that our model is
+competitive compared with these models.
 
 ## Future work
 
-- Learning covariance between tasks
-- Other arch: cross-stich
-- Loss function
+- Learning covariance between tasks and handle missing data
+- Other architecture: cross-stich
 - Advanced NN training: batch-normalization, dropout
-- Hyperparameters and architectures: use BO to optimize it
+- Hyperparameters and architectures of NN: use BO to optimize it
