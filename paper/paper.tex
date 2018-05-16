@@ -36,7 +36,7 @@
 \usepackage{multirow}
 \usepackage{longtable}
 
-\title{Multi-output Gaussian Process Regression using Deep Neural Network with Shared Layers}
+\title{Multi-task Neural Network for Multi-output Gaussian Process Regression}
 
 % The \author macro works with any number of authors. There are two
 % commands used to separate the names and addresses of multiple
@@ -80,21 +80,8 @@
 
 \maketitle
 
-\begin{abstract} 
-    The last hidden layer of a neural network can be viewed as a feature map,
-    and a kernel can be constructed from a feature map, so we can construct a
-    kernel for Gaussian process regression from a neural network with finite
-    hidden units; on the other hands, multiple correlated outputs can be
-    represented by a neural network with shared hidden layers. In this paper,
-    we build opon these two ideas, and propose a simple multi-output Gaussian
-    process regression model, the kernels of multiple tasks are constructed
-    from a neural network with shared hidden layers and task-specific layers.
-    We compare our model with several state-of-the-art multi-output Gaussian
-    process models using two public datasets and two examples of real-world
-    analog integrated circuits, the results show that our model is competitive
-    compared with these models.
-\end{abstract}
 
+\input{abstract}
 \input{introduction}
 \input{background}
 \input{mogp}

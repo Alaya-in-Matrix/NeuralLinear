@@ -3,7 +3,7 @@
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=\columnwidth]{./img/NN-MOGP.png}
-    \caption{Architechure of the multi-output Gaussian process model}
+    \caption{Architecture of the multi-output Gaussian process model}
     \label{fig:MONNGP}
 \end{figure}
 
@@ -23,10 +23,11 @@ Suppose we have $N$ observations $D_Q = \{X, Y | X \in R^{D \times N}, Y \in R^{
     \right.
 \end{equation}
 
-As illustrated in \fref{fig:MONNGP}, by defining GP with kernel function of \fref{eq:mo_kernel}, we actually defined a neural network architechure with shared layers and task-specific layers, which is a common architechure used in multi-task deep learning\cite{ruder2017overview}. The correlation between tasks are naturally encoded by the shared layer, while task-specific features are further learnt from the shared features. 
+As illustrated in \fref{fig:MONNGP}, by defining GP with kernel function of \fref{eq:mo_kernel}, we actually defined a neural network architecture with shared layers and task-specific layers, which is a common architecture used in multi-task deep learning\cite{ruder2017overview}. The correlation between tasks are naturally encoded by the shared layer, while task-specific features are further learnt from the shared features. 
 
-With the model define in \fref{eq:mo_kernel}, different tasks are \emph{conditionally independent} given the shared features, each specific task still sees a neural network with the same architechure plotted in \fref{fig:NNGP}, so the inferences of $\mu(\bm{x})$ and $\sigma^2(\bm{x})$ are exactly same with \fref{eq:DegeneratePred}, no additional overhead would be introduced. As different tasks are conditionally independent, the log likelihood of the training data can be expressed as the sum of the log likelihood of each specific task.
+With the model define in \fref{eq:mo_kernel}, different tasks are \emph{conditionally independent} given the shared features, each specific task still sees a neural network with the same architecture plotted in \fref{fig:NNGP}, so the inferences of $\mu(\bm{x})$ and $\sigma^2(\bm{x})$ are exactly same with \fref{eq:DegeneratePred}, no additional overhead would be introduced. As different tasks are conditionally independent, the log likelihood of the training data can be expressed as the sum of the log likelihood of each specific task.
 \begin{equation}
+    \label{eq:mo_likelihood}
     \log p(Y | X, \bm{\Theta}) = \sum_{i=1}^Q \log p(\bm{y}_i | X, \bm{\theta}_i, \bm{\theta}_s)
 \end{equation}
 where $\bm{y}_i$ is the $i$-the column of $Y$, $\bm{\Theta}$ is the vector of all the parameters, including shared parameters and task-specific parameters. $\bm{\theta_i}$ is the vector of parameters of specific for task $i$, including the weights of the $i$-th task-specific neural network, the weight prior factor $\sigma_{p, i}$ and the noise level $\sigma_{n, i}$ for the $i$-th task; $\bm{\theta}_s$ is vector of the weights of the shared layers.

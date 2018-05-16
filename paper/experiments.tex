@@ -1,57 +1,38 @@
 \section{Experimental Results}\label{sec:report}
 
-\subsection{ENB}\label{sec:enb}
+% TODO: acronym of algorithms
 
-\begin{itemize}
-\item
-  700 training
-\item
-  68 test
-\item
-  8 inputs
-\item
-  2 outputs
-\end{itemize}
+We implemented the multi-output Gaussian process model using Python3.5.2, the gradient of the loss function in \fref{eq:mo_likelihood} is calculated by \texttt{autograd} package\cite{maclaurin2015autograd}. We compared our algorithm with several state-of-the-art multi-output GP models on three dataset. The datasets include two public available datasets and one dataset sampled from a real-world analog integrated circuit, all the dataset and the test code are provided in the supplementary materials, and will be made public upon publication.
 
-\begin{longtable}[]{@{}lll@{}}
-\caption{SMSE of the ENB dataset (small is better)}\tabularnewline
-\toprule
-Algo & Output1 & Output 2\tabularnewline
-\midrule
-\endfirsthead
-\toprule
-Algo & Output1 & Output 2\tabularnewline
-\midrule
-\endhead
-modsk: & 0.00155 \(\pm\) 0.000159 & 0.00753 \(\pm\)
-0.00135\tabularnewline
-igp: & 0.00188 \(\pm\) 2.29e-19 & 0.00911 \(\pm\)
-1.83e-18\tabularnewline
-cogp: & 0.00597 \(\pm\) 0.00088 & 0.0144 \(\pm\) 0.000831\tabularnewline
-multigp: & 0.708 \(\pm\) 3.78e-05 & 1.21 \(\pm\) 4.1e-05\tabularnewline
-npv: & 6.87 \(\pm\) 9.36e-16 & 8.63 \(\pm\) 1.87e-15\tabularnewline
-mf: & 0.359 \(\pm\) 0.225 & 0.614 \(\pm\) 0.339\tabularnewline
-\bottomrule
-\end{longtable}
+We use standardized mean squared error (SMSE) and negative log likelihood (NLL) as the evaluation criteria. For all the test cases and compared algorithms, ten independent runs were performed to average random fluctuations, we report both the mean and standard deviation of the SMSE and NLL.
 
-\begin{longtable}[]{@{}lll@{}}
-\caption{NLL of the ENB dataset (small is better)}\tabularnewline
-\toprule
-Algo & Output1 & Output 2\tabularnewline
-\midrule
-\endfirsthead
-\toprule
-Algo & Output1 & Output 2\tabularnewline
-\midrule
-\endhead
-modsk: & 0.332 \(\pm\) 0.0634 & 0.972 \(\pm\) 0.107\tabularnewline
-igp: & 0.538 \(\pm\) 0 & 1.01 \(\pm\) 0\tabularnewline
-cogp: & 1.34 \(\pm\) 0.159 & 2.08 \(\pm\) 0.212\tabularnewline
-multigp: & 1.56 \(\pm\) 0.00363 & 1.66 \(\pm\) 0.00063\tabularnewline
-npv: & NA & NA\tabularnewline
-mf: & NA & NA\tabularnewline
-\bottomrule
-\end{longtable}
+\subsection{The Energy Building (ENB) Dataset}\label{sec:enb}
+
+The ENB dataset used is a small dataset with 768 samples, each sample has eight inputs and two outputs, we use 700 samples as the training data, and the remaining 668 samples are used for testing. The dataset comes from simulations to 768 buildings\cite{spyromitros2016multi, tsanas2012accurate}, the eight inputs are the building parameters like surface area and orientation, while the two outputs are the heating load and cooling load\footnote{The dataset is available at http://mulan.sourceforge.net/datasets-mtr.html}.
+
+For our MTNN-GP model, we use a neural network with two shared layers, and one task-specific layer per output, the tanh function is used as the activation function. For this architecture, we need to learn more than thirty thousands of parameters using only 700 samples. 
+
+The MTNN-GP model is compared with independen GP modeling (IGP) using the \texttt{GPML} package\cite{rasmussen2010gaussian} and four multi-output Gaussian process models, including the collaborative multi-output Gaussian processes (COGP)\footnote{downloaded from https://github.com/trungngv/cogp} proposed in \cite{nguyen2014collaborative}, the sparse convolved Gaussian processes (SCGP)\footnote{downloaded from https://github.com/SheffieldML/multigp} method proposed in \cite{alvarez2009sparse}, and the Gaussian process regression network with NPV and MF inference methods\footnote{downloaded from https://github.com/trungngv/gprn}(GPRN-NPV and GPRN-MF) \cite{nguyen2013efficient}. For the independent GP (IGP), the ARD squared-exponential kernel function is used, for other methods, we used the default algorithm configurations of the corrsponding open source packages.
+
+The SMSE and NLL statistics are given in \fref{tab:result_enb}, the code for the GPRN-NPV and GPRN-MF modes give no predictive variances, so only the SMSE statistics are reported. We can see that our MTNN-GP is better than training independent GP modes for each task, as for other multi-output GP model, they all gave results worse than the IGP model.
+
+
+\begin{table}[!htb]
+    \centering
+    \caption{The SMSE and NLL statistics of the ENB dataset}
+    \label{tab:result_enb}
+    \begin{tabular}{lllll}
+        \toprule
+        Algo      & Output1(SMSE)          & Output2(SMSE)          & Output1(NLL)        & Output2(NLL)         \\ \midrule
+        MTNN-GP:  & 0.00155 $\pm$ 0.000159 & 0.00753 $\pm$ 0.00135  & 0.332 $\pm$ 0.0634  & 0.972 $\pm$ 0.107    \\
+        IGP:      & 0.00188 $\pm$ 0        & 0.00911 $\pm$ 0        & 0.538 $\pm$ 0       & 1.01  $\pm$ 0        \\
+        GOGP:     & 0.00597 $\pm$ 0.00088  & 0.0144  $\pm$ 0.000831 & 1.34  $\pm$ 0.159   & 2.08  $\pm$ 0.212    \\
+        SCGP:     & 0.708   $\pm$ 3.78e-05 & 1.21    $\pm$ 4.1e-05  & 1.56  $\pm$ 0.00363 & 1.66  $\pm$ 0.00063  \\
+        GPRN-NPV: & 6.87    $\pm$ 9.36e-16 & 8.63    $\pm$ 1.87e-15 & NA                  & NA                   \\
+        GPRN-MF:  & 0.359   $\pm$ 0.225    & 0.614   $\pm$ 0.339    & NA                  & NA                   \\
+        \bottomrule
+    \end{tabular}
+\end{table}
 
 \subsection{SARCOS}\label{sec:sarcos}
 
@@ -65,11 +46,11 @@ mf: & NA & NA\tabularnewline
 \item
   2 outputs
 \item
-  multigp: subset of data: use 2000 training set
+  SCGP: subset of data: use 2000 training set
 \item
   GPRN-AVI: NIPS2017, black-box likelihood, M/N = 0.04
 \item
-  multigp gives zero prediction, underfitting
+  SCGP gives zero prediction, underfitting
 \end{itemize}
 
 \begin{longtable}[]{@{}lll@{}}
@@ -87,7 +68,7 @@ modsk: & 0.00156 \(\pm\) 3.46e-05 & 0.00307 \(\pm\)
 igp: & 0.0045 \(\pm\) 0.000153 & 0.00787 \(\pm\) 0.000257\tabularnewline
 cogp: & 0.00852 \(\pm\) 0.000241 & 0.0149 \(\pm\)
 0.000433\tabularnewline
-multigp: & 4.7 \(\pm\) 0.0245 & 3.39 \(\pm\) 0.0192\tabularnewline
+SCGP: & 4.7 \(\pm\) 0.0245 & 3.39 \(\pm\) 0.0192\tabularnewline
 npv: & Inf \(\pm\) NaN & Inf \(\pm\) NaN\tabularnewline
 mf: & Inf \(\pm\) NaN & Inf \(\pm\) NaN\tabularnewline
 \bottomrule
@@ -106,7 +87,7 @@ Algo & Output1 & Output 2\tabularnewline
 modsk: & 0.804 \(\pm\) 0.0111 & -0.509 \(\pm\) 0.00813\tabularnewline
 igp: & 1.06 \(\pm\) 0.00941 & -0.236 \(\pm\) 0.0124\tabularnewline
 cogp: & 2.48 \(\pm\) 0.0577 & 2.4 \(\pm\) 0.097\tabularnewline
-multigp: & 4.63 \(\pm\) 0.0128 & 2.87 \(\pm\) 0.011\tabularnewline
+SCGP: & 4.63 \(\pm\) 0.0128 & 2.87 \(\pm\) 0.011\tabularnewline
 npv: & Inf \(\pm\) NaN & Inf \(\pm\) NaN\tabularnewline
 mf: & Inf \(\pm\) NaN & Inf \(\pm\) NaN\tabularnewline
 \bottomrule
