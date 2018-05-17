@@ -1,8 +1,8 @@
 \section{Experimental Results}\label{sec:report}
 
-% TODO: acronym of algorithms
+% TODO: report training time
 
-We implemented the multi-output Gaussian process model using Python3.5.2, the gradient of the loss function in \fref{eq:mo_likelihood} is calculated by \texttt{autograd} package\cite{maclaurin2015autograd}. We compared our algorithm with several state-of-the-art multi-output GP models on three dataset. The datasets include two public available datasets and one dataset sampled from a real-world analog integrated circuit, all the dataset and the test code are provided in the supplementary materials, and will be made public upon publication.
+We implemented the multi-output Gaussian process model using Python3.5.2, the gradient of the loss function in \Fref{eq:mo_likelihood} is calculated by \texttt{autograd} package\cite{maclaurin2015autograd}. We compared our algorithm with several state-of-the-art multi-output GP models on three dataset. The datasets include two public available datasets and one dataset sampled from a real-world analog integrated circuit, all the dataset and the test code are provided in the supplementary materials, and will be made public upon publication.
 
 We use standardized mean squared error (SMSE) and negative log likelihood (NLL) as the evaluation criteria. For all the test cases and compared algorithms, ten independent runs were performed to average random fluctuations, we report both the mean and standard deviation of the SMSE and NLL.
 
@@ -10,12 +10,11 @@ We use standardized mean squared error (SMSE) and negative log likelihood (NLL) 
 
 The ENB dataset used is a small dataset with 768 samples, each sample has eight inputs and two outputs, we use 700 samples as the training data, and the remaining 668 samples are used for testing. The dataset comes from simulations to 768 buildings\cite{spyromitros2016multi, tsanas2012accurate}, the eight inputs are the building parameters like surface area and orientation, while the two outputs are the heating load and cooling load\footnote{The dataset is available at http://mulan.sourceforge.net/datasets-mtr.html}.
 
-For our MTNN-GP model, we use a neural network with two shared layers, and one task-specific layer per output, the tanh function is used as the activation function. For this architecture, we need to learn more than thirty thousands of parameters using only 700 samples. 
+For our MTNN-GP model, we use a neural network with two shared layers, and one task-specific layer per output, all the layers have 100 hidden units with the tanh activation function. For this architecture, we need to learn more than thirty thousands of parameters using only 700 samples. 
 
-The MTNN-GP model is compared with independen GP modeling (IGP) using the \texttt{GPML} package\cite{rasmussen2010gaussian} and four multi-output Gaussian process models, including the collaborative multi-output Gaussian processes (COGP)\footnote{downloaded from https://github.com/trungngv/cogp} proposed in \cite{nguyen2014collaborative}, the sparse convolved Gaussian processes (SCGP)\footnote{downloaded from https://github.com/SheffieldML/multigp} method proposed in \cite{alvarez2009sparse}, and the Gaussian process regression network with NPV and MF inference methods\footnote{downloaded from https://github.com/trungngv/gprn}(GPRN-NPV and GPRN-MF) \cite{nguyen2013efficient}. For the independent GP (IGP), the ARD squared-exponential kernel function is used, for other methods, we used the default algorithm configurations of the corrsponding open source packages.
+The MTNN-GP model is compared with independent GP modeling (IGP) using the \texttt{GPML} package\cite{rasmussen2010gaussian} and four multi-output Gaussian process models, including the collaborative multi-output Gaussian processes (COGP)\footnote{downloaded from https://github.com/trungngv/cogp} proposed in \cite{nguyen2014collaborative}, the sparse convolved Gaussian processes (SCGP)\footnote{downloaded from https://github.com/SheffieldML/multigp} method proposed in \cite{alvarez2009sparse}, and the Gaussian process regression network with nonparametric variational inference and mean-field inference methods\footnote{downloaded from https://github.com/trungngv/gprn}(GPRN-NPV and GPRN-MF) \cite{nguyen2013efficient}. For the independent GP (IGP), the ARD squared-exponential kernel function is used, for other methods, we use the default configurations of the corrsponding open source packages, except that we used 200 inducing points for the COGP model instead of the default 500 inducing points.
 
-The SMSE and NLL statistics are given in \fref{tab:result_enb}, the code for the GPRN-NPV and GPRN-MF modes give no predictive variances, so only the SMSE statistics are reported. We can see that our MTNN-GP is better than training independent GP modes for each task, as for other multi-output GP model, they all gave results worse than the IGP model.
-
+The SMSE and NLL statistics are given in \Fref{tab:result_enb}, the code for the GPRN-NPV and GPRN-MF modes give no predictive variances, so only the SMSE statistics are reported. We can see that our MTNN-GP is better than independent GP modes for each task, as for other multi-output GP model, they all gave results worse than the IGP model.
 
 \begin{table}[!htb]
     \centering
@@ -34,160 +33,102 @@ The SMSE and NLL statistics are given in \fref{tab:result_enb}, the code for the
     \end{tabular}
 \end{table}
 
-\subsection{SARCOS}\label{sec:sarcos}
+\subsection{The SARCOS dataset}\label{sec:sarcos}
 
-\begin{itemize}
-\item
-  44484 training
-\item
-  4449 test
-\item
-  21 inputs
-\item
-  2 outputs
-\item
-  SCGP: subset of data: use 2000 training set
-\item
-  GPRN-AVI: NIPS2017, black-box likelihood, M/N = 0.04
-\item
-  SCGP gives zero prediction, underfitting
-\end{itemize}
+We use the SARCOS dataset\footnote{available at http://www.gaussianprocess.org/gpml/data/} to test the scalablity of our model for large dataset. The dataset comes from a robot inverse dynamic model, the whole dataset contains 48933 samples, each sample has 21 inputs (the joint positions, joint velocities and joint accelerations) and seven targets (seven joint torques), 44484 samples are used as the training set, the remaining 4449 samples are used as the test data. We select the 4-th and 7-th torques as the two outputs, which is the same setting as \cite{nguyen2014collaborative} and \cite{NIPS2015_5665}, we also compared our experimental results with the results reported by \cite{nguyen2014collaborative,NIPS2015_5665}.
 
-\begin{longtable}[]{@{}lll@{}}
-\caption{SMSE of the SARCOS dataset (small is better)}\tabularnewline
-\toprule
-Algo & Output1 & Output 2\tabularnewline
-\midrule
-\endfirsthead
-\toprule
-Algo & Output1 & Output 2\tabularnewline
-\midrule
-\endhead
-modsk: & 0.00156 \(\pm\) 3.46e-05 & 0.00307 \(\pm\)
-5.64e-05\tabularnewline
-igp: & 0.0045 \(\pm\) 0.000153 & 0.00787 \(\pm\) 0.000257\tabularnewline
-cogp: & 0.00852 \(\pm\) 0.000241 & 0.0149 \(\pm\)
-0.000433\tabularnewline
-SCGP: & 4.7 \(\pm\) 0.0245 & 3.39 \(\pm\) 0.0192\tabularnewline
-npv: & Inf \(\pm\) NaN & Inf \(\pm\) NaN\tabularnewline
-mf: & Inf \(\pm\) NaN & Inf \(\pm\) NaN\tabularnewline
-\bottomrule
-\end{longtable}
+% For our MTNN-GP model, we used two layers with 100 hidden units as the shared layers, two layers with 100 hidden units are use 
+For our MTNN-GP model, we use two layers for the shared layers and two layers for the task-specific layers per output, each layer has 100 hidden units with the tanh activation function. For the independent GP model, we used the FITC approximation with 200 inducing points to speedup the training, as the SCGP, GPRN-NPV and GPRN-MF can't scale to such large dataset, in each run, we randomly select 2000 data points to train the SCGP model, and 1000 data points for the GPRN-NPV/GPRN-MF modes.
 
-\begin{longtable}[]{@{}lll@{}}
-\caption{NLL of the SARCOS dataset (small is better)}\tabularnewline
-\toprule
-Algo & Output1 & Output 2\tabularnewline
-\midrule
-\endfirsthead
-\toprule
-Algo & Output1 & Output 2\tabularnewline
-\midrule
-\endhead
-modsk: & 0.804 \(\pm\) 0.0111 & -0.509 \(\pm\) 0.00813\tabularnewline
-igp: & 1.06 \(\pm\) 0.00941 & -0.236 \(\pm\) 0.0124\tabularnewline
-cogp: & 2.48 \(\pm\) 0.0577 & 2.4 \(\pm\) 0.097\tabularnewline
-SCGP: & 4.63 \(\pm\) 0.0128 & 2.87 \(\pm\) 0.011\tabularnewline
-npv: & Inf \(\pm\) NaN & Inf \(\pm\) NaN\tabularnewline
-mf: & Inf \(\pm\) NaN & Inf \(\pm\) NaN\tabularnewline
-\bottomrule
-\end{longtable}
+The SMSE and NLL results are listed in \Fref{tab:result_sarcos}, it can be clearly seen that our MTNN-GP gave better predictions than the independent GP modes, and the IGP model outperformed all other multi-output Gaussian process modes. 
 
-\subsection{DAC14}\label{sec:dac14}
+Note that the the data of the last two rows in \Fref{tab:result_sarcos} are not from experiments we performed, but from the reported results of two multi-output Gaussian process modes\cite{nguyen2014collaborative, NIPS2015_5665}, we show that simply using independent GP model with FITC approximation can generate considerably better performances. 
 
-\begin{itemize}
-\item
-  2000 training
-\item
-  8000 test
-\item
-  10 inputs
-\item
-  15 outputs
-\end{itemize}
+The reported results of the COGP model are different with our experimental results due to the different algorithm settings, in \cite{nguyen2014collaborative}, only 2000 training points were used for the first output, while we used the whole 44484 training data for both outputs; also, we used 200 inducing points (same as the independent GP), while in \cite{nguyen2014collaborative}, 500 inducing points are used. The COGP results from our experiments gave better predictions for the first output but worse predictions for the second output.
 
-\begin{longtable}[]{@{}llll@{}}
-\caption{SMSE for DAC14 dataset}\tabularnewline
-\toprule
-Out & MOESK & IGP & COGP\tabularnewline
-\midrule
-\endfirsthead
-\toprule
-Out & MOESK & IGP & COGP\tabularnewline
-\midrule
-\endhead
-O1 & 0.00064 \(\pm\) 3.5e-05 & 0.2 \(\pm\) 0.0019 & 0.19 \(\pm\)
-0.0033\tabularnewline
-O2 & 0.0006 \(\pm\) 3.9e-05 & 0.18 \(\pm\) 0.0061 & 0.15 \(\pm\)
-0.0034\tabularnewline
-O3 & 0.00054 \(\pm\) 4.2e-05 & 0.084 \(\pm\) 0.0034 & 0.084 \(\pm\)
-0.0016\tabularnewline
-O4 & 0.00023 \(\pm\) 1.7e-05 & 0.22 \(\pm\) 0.0037 & 0.053 \(\pm\)
-0.0014\tabularnewline
-O5 & 0.00028 \(\pm\) 2.1e-05 & 0.4 \(\pm\) 0.0053 & 0.087 \(\pm\)
-0.0015\tabularnewline
-O6 & 0.00022 \(\pm\) 1.4e-05 & 0.24 \(\pm\) 0.0024 & 0.049 \(\pm\)
-0.00096\tabularnewline
-O7 & 0.0013 \(\pm\) 9.6e-05 & 0.63 \(\pm\) 0.02 & 0.22 \(\pm\)
-0.0031\tabularnewline
-O8 & 0.0011 \(\pm\) 0.00014 & 0.45 \(\pm\) 0.013 & 0.15 \(\pm\)
-0.0017\tabularnewline
-O9 & 0.0011 \(\pm\) 0.00013 & 0.12 \(\pm\) 0.0021 & 0.073 \(\pm\)
-0.0016\tabularnewline
-O10 & 0.0011 \(\pm\) 9.8e-05 & 0.4 \(\pm\) 0.077 & 0.25 \(\pm\)
-0.0036\tabularnewline
-O11 & 0.001 \(\pm\) 0.00011 & 0.47 \(\pm\) 0.069 & 0.18 \(\pm\)
-0.0038\tabularnewline
-O12 & 0.00097 \(\pm\) 6.3e-05 & 0.39 \(\pm\) 0.087 & 0.1 \(\pm\)
-0.0016\tabularnewline
-O13 & 0.00032 \(\pm\) 2.3e-05 & 0.092 \(\pm\) 0.0038 & 0.092 \(\pm\)
-0.00096\tabularnewline
-O14 & 0.00036 \(\pm\) 2.9e-05 & 0.14 \(\pm\) 0.0052 & 0.11 \(\pm\)
-0.0024\tabularnewline
-O15 & 0.00027 \(\pm\) 1.4e-05 & 0.059 \(\pm\) 0.00043 & 0.059 \(\pm\)
-0.00083\tabularnewline
-\bottomrule
-\end{longtable}
+\begin{table}[!htb]
+    \centering
+    \caption{The SMSE and NLL statistics of the ENB dataset}
+    \label{tab:result_sarcos}
+    \begin{tabular}{lllll}
+        \toprule
+        Algo                      & Output1(SMSE)                     & Output2(SMSE)                     & Output1(NLL)                   & Output2(NLL)           \\ \midrule
+        MTNN-GP:                  & \textbf{0.00156 \(\pm\) 3.46e-05} & \textbf{0.00307 \(\pm\) 5.64e-05} & \textbf{0.804 \(\pm\) 0.0111}  & \textbf{-0.509 \(\pm\) 0.00813} \\
+        IGP:                      & 0.0045  \(\pm\) 0.000153          & 0.00787 \(\pm\) 0.000257          & 1.06  \(\pm\) 0.00941          & -0.236 \(\pm\) 0.0124  \\
+        GOGP:                     & 0.00852 \(\pm\) 0.000241          & 0.0149  \(\pm\) 0.000433          & 2.48  \(\pm\) 0.0577           & 2.4    \(\pm\) 0.097   \\
+        SCGP:                     & 4.7     \(\pm\) 0.0245            & 3.39    \(\pm\) 0.0192            & 4.63  \(\pm\) 0.0128           & 2.87   \(\pm\) 0.011   \\
+        GPRN-NPV:                 & Inf     \(\pm\) NaN               & Inf     \(\pm\) NaN               & Inf   \(\pm\) NaN              & Inf    \(\pm\) NaN     \\
+        GPRN-MF:                  & Inf     \(\pm\) NaN               & Inf     \(\pm\) NaN               & Inf   \(\pm\) NaN              & Inf    \(\pm\) NaN     \\ \midrule
+        COGP\cite{nguyen2014collaborative}            & 0.2631            & 0.0127  & 3.6   & 0.8302                 \\
+        GPRN-AVI\cite{NIPS2015_5665}                  & $\approx$ 0.009   & > 0.009 & NA    & NA     \\
+        \bottomrule
+    \end{tabular}
+\end{table}
 
-\begin{longtable}[]{@{}llll@{}}
-\caption{LL for DAC14 dataset}\tabularnewline
-\toprule
-Out & MOESK & IGP & COGP\tabularnewline
-\midrule
-\endfirsthead
-\toprule
-Out & MOESK & IGP & COGP\tabularnewline
-\midrule
-\endhead
-O1 & -2.3 \(\pm\) 0.033 & 0.43 \(\pm\) 0.0048 & 4.7 \(\pm\)
-0.17\tabularnewline
-O2 & -2.5 \(\pm\) 0.025 & 0.18 \(\pm\) 0.0079 & 3.3 \(\pm\)
-0.25\tabularnewline
-O3 & -2.4 \(\pm\) 0.026 & -0.1 \(\pm\) 0.01 & 3.2 \(\pm\)
-0.15\tabularnewline
-O4 & -3 \(\pm\) 0.038 & -1.1 \(\pm\) 0.018 & 2.1 \(\pm\)
-0.14\tabularnewline
-O5 & -3.1 \(\pm\) 0.037 & -1.1 \(\pm\) 0.035 & 2.1 \(\pm\)
-0.14\tabularnewline
-O6 & -3 \(\pm\) 0.03 & -0.95 \(\pm\) 0.011 & 1.8 \(\pm\)
-0.21\tabularnewline
-O7 & -2.2 \(\pm\) 0.042 & -0.74 \(\pm\) 0.047 & 5.7 \(\pm\)
-0.4\tabularnewline
-O8 & -2.4 \(\pm\) 0.055 & -1 \(\pm\) 0.041 & 4.8 \(\pm\)
-0.36\tabularnewline
-O9 & -2.2 \(\pm\) 0.036 & -1 \(\pm\) 0.024 & 2.5 \(\pm\)
-0.18\tabularnewline
-O10 & -2.1 \(\pm\) 0.052 & 0.32 \(\pm\) 0.045 & 5 \(\pm\)
-0.4\tabularnewline
-O11 & -2.2 \(\pm\) 0.067 & -0.031 \(\pm\) 0.033 & 4 \(\pm\)
-0.13\tabularnewline
-O12 & -2.1 \(\pm\) 0.025 & -0.27 \(\pm\) 0.018 & 3.7 \(\pm\)
-0.24\tabularnewline
-O13 & -2.7 \(\pm\) 0.032 & 0.049 \(\pm\) 0.0063 & 2.7 \(\pm\)
-0.16\tabularnewline
-O14 & -2.7 \(\pm\) 0.035 & -0.046 \(\pm\) 0.0055 & 2.4 \(\pm\)
-0.24\tabularnewline
-O15 & -2.7 \(\pm\) 0.023 & -0.2 \(\pm\) 0.0042 & 2.5 \(\pm\)
-0.17\tabularnewline
-\bottomrule
-\end{longtable}
+\subsection{Behaviour Modeling of Operational Amplifier}\label{sec:dac14}
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=300pt]{./img/sopam.pdf}
+    \caption{The schematic of the operational amplifier}
+    \label{fig:sopamp}
+\end{figure}
+
+The last dataset we used is the simulation data of a real-world analog integrated circuit, the circuit is an operational amplifier (OpAmp) with ten design variances, we randomly sampled the ten design variances, and used HSPICE to get the simulated circuit performances. We considered the gain, unit gain frequency (UGF) and the phase margin (PM) of the OpAmp over five design corners (TT/FF/SS/SF/FS), so there are up to fifteen performances considered. We gathered 10000 samples, and used 2000 points as the training set, the rest 8000 data points are used for testing. The dataset can be seen in the supplementary materials.
+
+\begin{table}[!htb]
+    \centering
+    \caption{The SMSE statistics of the OpAmp dataset}
+    \label{tab:smse_DAC}
+    \begin{tabular}{lllllll}
+        \toprule
+        Output & MTNN-GP               &  IGP                  & COGP                  & SCGP          &  GPRN-NPV    & GPRN-MF            \\ \midrule
+        O1     &  6.5e-4 $\pm$  3.5e-5 &  0.20 $\pm$  0.0019   &  0.19 $\pm$  0.0044   &  1  $\pm$  0  &  1  $\pm$  0 &  0.79 $\pm$  0.039 \\
+        O2     &  6.2e-4 $\pm$  3.9e-5 &  0.18 $\pm$  0.0088   &  0.15 $\pm$  0.0033   &  1  $\pm$  0  &  1  $\pm$  0 &  0.73 $\pm$  0.049 \\
+        O3     &  5.4e-4 $\pm$  5.4e-5 &  0.08 $\pm$  0.003    &  0.08 $\pm$  0.002    &  1  $\pm$  0  &  1  $\pm$  0 &  0.70 $\pm$  0.045 \\
+        O4     &  2.4e-4 $\pm$  2.0e-5 &  0.22 $\pm$  0.0015   &  0.05 $\pm$  0.00099  &  1  $\pm$  0  &  1  $\pm$  0 &  0.59 $\pm$  0.065 \\
+        O5     &  2.9e-4 $\pm$  2.2e-5 &  0.40 $\pm$  0.0074   &  0.09 $\pm$  0.00037  &  1  $\pm$  0  &  1  $\pm$  0 &  0.64 $\pm$  0.068 \\
+        O6     &  2.2e-4 $\pm$  1.8e-5 &  0.23 $\pm$  0.0025   &  0.05 $\pm$  0.00073  &  1  $\pm$  0  &  1  $\pm$  0 &  0.61 $\pm$  0.066 \\
+        O7     &  1.3e-3 $\pm$  1.0e-4 &  0.62 $\pm$  0.019    &  0.22 $\pm$  0.0033   &  1  $\pm$  0  &  1  $\pm$  0 &  0.75 $\pm$  0.043 \\
+        O8     &  1.1e-3 $\pm$  1.7e-4 &  0.44 $\pm$  0.0059   &  0.15 $\pm$  0.0021   &  1  $\pm$  0  &  1  $\pm$  0 &  0.71 $\pm$  0.042 \\
+        O9     &  1.1e-3 $\pm$  9.6e-5 &  0.12 $\pm$  0.0021   &  0.07 $\pm$  0.0019   &  1  $\pm$  0  &  1  $\pm$  0 &  0.68 $\pm$  0.037 \\
+        O10    &  1.2e-3 $\pm$  1.1e-4 &  0.40 $\pm$  0.11     &  0.25 $\pm$  0.0045   &  1  $\pm$  0  &  1  $\pm$  0 &  0.82 $\pm$  0.044 \\
+        O11    &  1.1e-3 $\pm$  9.5e-5 &  0.49 $\pm$  0.01     &  0.18 $\pm$  0.0027   &  1  $\pm$  0  &  1  $\pm$  0 &  0.75 $\pm$  0.046 \\
+        O12    &  1.0e-3 $\pm$  6.0e-5 &  0.40 $\pm$  0.071    &  0.10 $\pm$  0.0015   &  1  $\pm$  0  &  1  $\pm$  0 &  0.70 $\pm$  0.043 \\
+        O13    &  3.3e-3 $\pm$  2.7e-5 &  0.09 $\pm$  0.0029   &  0.09 $\pm$  0.00093  &  1  $\pm$  0  &  1  $\pm$  0 &  0.71 $\pm$  0.061 \\
+        O14    &  3.7e-3 $\pm$  3.1e-5 &  0.13 $\pm$  0.0022   &  0.11 $\pm$  0.0024   &  1  $\pm$  0  &  1  $\pm$  0 &  0.74 $\pm$  0.053 \\
+        O15    &  2.8e-3 $\pm$  1.4e-5 &  0.06 $\pm$  0.00051  &  0.06 $\pm$  0.00099  &  1  $\pm$  0  &  1  $\pm$  0 &  0.68 $\pm$  0.059 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+The IGP, COGP, SCGP, GPRN-NPV and GPRN-MF modes are compared, the algorithm settings for our MTNN-GP and the compared modes are same with the settings described in \Fref{sec:sarcos}. 
+
+The SMSE statistics are listed in \Fref{tab:smse_DAC} and the NLL statistics are given in \Fref{tab:nll_DAC}. Like the previous two datasets, the MTNN-GP model give far better predictions than the IGP and other multi-output GP modes. The SMSE of the COGP model is slightly better than the IGP model, but the NLL results are worse. The SCGP and the GPRN-NPV completely underfitted the dataset, they predict everything to zero.
+
+
+\begin{table}[!htb]
+    \centering
+    \caption{The NLL statistics of the OpAmp dataset}
+    \label{tab:nll_DAC}
+    \begin{tabular}{lllllll}
+        \toprule
+        Output & MTNN-GP              & IGP                     & COGP                & SCGP                & GPRN-NPV & GPRN-MF \\ \midrule
+        O1     &  -2.3  $\pm$  0.036  &  0.43    $\pm$  0.0058  &  4.7  $\pm$  0.22   &  1.8  $\pm$  0.17   &  NA      & NA \\
+        O2     &  -2.5  $\pm$  0.024  &  0.18    $\pm$  0.011   &  3.2  $\pm$  0.13   &  1.9  $\pm$  0.15   &  NA      & NA \\
+        O3     &  -2.4  $\pm$  0.032  &  -0.1    $\pm$  0.0035  &  3.2  $\pm$  0.14   &  1.6  $\pm$  0.11   &  NA      & NA \\
+        O4     &  -3    $\pm$  0.04   &  -1.1    $\pm$  0.0084  &  2    $\pm$  0.068  &  1.5  $\pm$  0.16   &  NA      & NA \\
+        O5     &  -3    $\pm$  0.043  &  -1.1    $\pm$  0.029   &  2.1  $\pm$  0.17   &  1.5  $\pm$  0.11   &  NA      & NA \\
+        O6     &  -3    $\pm$  0.035  &  -0.95   $\pm$  0.014   &  1.8  $\pm$  0.11   &  1.7  $\pm$  0.17   &  NA      & NA \\
+        O7     &  -2.1  $\pm$  0.051  &  -0.73   $\pm$  0.01    &  5.7  $\pm$  0.35   &  1.5  $\pm$  0.049  &  NA      & NA \\
+        O8     &  -2.3  $\pm$  0.057  &  -1      $\pm$  0.056   &  4.9  $\pm$  0.27   &  1.5  $\pm$  0.038  &  NA      & NA \\
+        O9     &  -2.2  $\pm$  0.031  &  -1      $\pm$  0.016   &  2.5  $\pm$  0.19   &  1.6  $\pm$  0.1    &  NA      & NA \\
+        O10    &  -2    $\pm$  0.059  &  0.33    $\pm$  0.062   &  5.1  $\pm$  0.53   &  1.8  $\pm$  0.11   &  NA      & NA \\
+        O11    &  -2.2  $\pm$  0.064  &  -0.046  $\pm$  0.015   &  4    $\pm$  0.095  &  1.8  $\pm$  0.099  &  NA      & NA \\
+        O12    &  -2.1  $\pm$  0.032  &  -0.27   $\pm$  0.016   &  3.6  $\pm$  0.28   &  1.7  $\pm$  0.069  &  NA      & NA \\
+        O13    &  -2.7  $\pm$  0.032  &  0.051   $\pm$  0.0075  &  2.7  $\pm$  0.14   &  1.6  $\pm$  0.17   &  NA      & NA \\
+        O14    &  -2.7  $\pm$  0.034  &  -0.046  $\pm$  0.0025  &  2.5  $\pm$  0.25   &  1.7  $\pm$  0.22   &  NA      & NA \\
+        O15    &  -2.7  $\pm$  0.03   &  -0.2    $\pm$  0.0036  &  2.5  $\pm$  0.2    &  1.5  $\pm$  0.06   &  NA      & NA \\
+        \bottomrule
+    \end{tabular}
+\end{table}
