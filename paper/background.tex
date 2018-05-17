@@ -1,6 +1,6 @@
 \section{Background}
 
-\subsection{Scalar output Gaussian Process Regression}\label{sec:SOGP}
+\subsection{Gaussian Process Regression}\label{sec:SOGP}
 
 Given training set $D = \{X, \bm{y}\}$ where $X = \{\bm{x}_1,~\dots~\bm{x}_N\}$, and $\bm{y} = \{y_1,~\dots~y_N\}$, we assume the target value $y$ is generated
 by a latent function $f(\bm{x})$ such with addictive noise $\epsilon \sim N(0, \sigma_n^2)$ such that
@@ -39,7 +39,7 @@ where $\Lambda = \mathrm{diag}(l_1, \dots, l_d)$ is a diagonal matrix and $l_i$ 
 
 Where $K_{\bm{\theta}}$ is the covariance matrix of the training input calculated by the kernel function.
 
-\subsection{NN-GP}\label{sec:NNGP}
+\subsection{Reduced-Rank Gaussian Process model from finite feature map}\label{sec:NNGP}
 
 \begin{figure}[!htb]
     \centering
