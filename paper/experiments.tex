@@ -1,4 +1,4 @@
-\section{Experimental Results}\label{sec:report}
+\section{Experimental Results}\label{sec:experiments}
 
 % TODO: report training time
 
@@ -70,7 +70,7 @@ The SMSE and NLL statistics are given in \Fref{tab:result_enb}. The GPRN-NPV and
 We use the SARCOS dataset\footnote{available at http://www.gaussianprocess.org/gpml/data/} to test the scalability of our model for large dataset. The dataset comes from a robot inverse dynamic model, the whole dataset contains 48933 samples. Each sample has 21 inputs (the joint positions, joint velocities and joint accelerations) and 7 targets (seven joint torques). 44484 samples are used as the training set, and the remaining 4449 samples are used as the testing data. We select the 4-th and 7-th torques as the two outputs, which is the same setting as \cite{nguyen2014collaborative} and \cite{NIPS2015_5665}. We also compared our experimental results with the results reported by \cite{nguyen2014collaborative,NIPS2015_5665}.
 
 % For our MTNN-GP model, we used two layers with 100 hidden units as the shared layers, two layers with 100 hidden units are use
-For our MTNN-GP model, we use 2 layers for the shared layers and 2 layers for the task-specific layers per output. Each layer has 100 hidden units with the tanh activation function. For the independent GP model, we used the FITC approximation with 200 inducing points to speedup the training. As the SCGP, GPRN-NPV and GPRN-MF cannot scale to such large dataset, in each run, we randomly select 2000 data points to train the SCGP model, and 1000 data points for the GPRN-NPV/GPRN-MF modes.
+For our MTNN-GP model, we use the same setting as we used for the ENB dataset. For the independent GP model, we used the FITC approximation with 200 inducing points to speedup the training. As the SCGP, GPRN-NPV and GPRN-MF cannot scale to such large dataset, in each run, we randomwe use the same setting as we used for the ENB dataset
 
 The SMSE and NLL results are listed in \Fref{tab:result_sarcos}. It can be clearly seen that our MTNN-GP gave better predictions than the independent GP modes, and the IGP model outperformed all other multi-output Gaussian process models.
 
@@ -149,3 +149,5 @@ The SMSE statistics are listed in \Fref{tab:smse_DAC} and the NLL statistics are
         \bottomrule
     \end{tabular}
 \end{table}
+
+% XXX: GPRN-NPV might be a good model, but it is poorly implemented, we set max_iter = 100, but it often pre-converge after tens of iterations
