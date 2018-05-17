@@ -2,8 +2,21 @@
 
 % TODO: report training time
 
-We implemented the multi-output Gaussian process model using Python3.5.2, the gradient of the loss function in \Fref{eq:mo_likelihood} is calculated by \texttt{autograd} package\cite{maclaurin2015autograd}. We compared our algorithm with several state-of-the-art multi-output GP models on three dataset. The datasets include two public available datasets and one dataset sampled from a real-world analog integrated circuit, all the dataset and the test code are provided in the supplementary materials, and will be made public upon publication.
+We implemented the multi-output Gaussian process model using Python3.5.2, the gradient of the loss function in \Fref{eq:mo_likelihood} is calculated by \texttt{autograd} package\cite{maclaurin2015autograd}. We compared our algorithm with several state-of-the-art multi-output GP models on three dataset. The datasets include two public available datasets and one dataset sampled from a real-world analog integrated circuit, as summarized in \Fref{tab:datasets}. All the datasets and the test code are provided in the supplementary materials, and will be made public upon publication.
 
+\begin{table}[!htb]
+    \centering
+    \caption{Summary of the used datasets}
+    \label{tab:datasets}
+    \begin{tabular}{lllll}
+        \toprule
+        Dataset & \# inputs & \# outputs & \# training & \# testing \\ \midrule
+        ENB:    & 8         & 2          & 700         & 68  \\
+        SARCOS: & 21        & 2          & 44484       & 4449 \\
+        OpAmp:  & 10        & 15         & 2000        & 8000 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
 We use standardized mean squared error (SMSE) and negative log likelihood (NLL) as the evaluation criteria. For all the test cases and compared algorithms, ten independent runs were performed to average random fluctuations, we report both the mean and standard deviation of the SMSE and NLL.
 
 \subsection{The Energy Building (ENB) Dataset}\label{sec:enb}
@@ -46,9 +59,10 @@ Note that the the data of the last two rows in \Fref{tab:result_sarcos} are not 
 
 The reported results of the COGP model are different with our experimental results due to the different algorithm settings, in \cite{nguyen2014collaborative}, only 2000 training points were used for the first output, while we used the whole 44484 training data for both outputs; also, we used 200 inducing points (same as the independent GP), while in \cite{nguyen2014collaborative}, 500 inducing points are used. The COGP results from our experiments gave better predictions for the first output but worse predictions for the second output.
 
+
 \begin{table}[!htb]
     \centering
-    \caption{The SMSE and NLL statistics of the ENB dataset}
+    \caption{The SMSE and NLL statistics of the SARCOS dataset}
     \label{tab:result_sarcos}
     \begin{tabular}{lllll}
         \toprule
@@ -65,16 +79,23 @@ The reported results of the COGP model are different with our experimental resul
     \end{tabular}
 \end{table}
 
+
 \subsection{Behaviour Modeling of Operational Amplifier}\label{sec:dac14}
 
-\begin{figure}[!htb]
-    \centering
-    \includegraphics[width=300pt]{./img/sopam.pdf}
-    \caption{The schematic of the operational amplifier}
-    \label{fig:sopamp}
-\end{figure}
+% \begin{figure}[!htb]
+%     \centering
+%     \includegraphics[width=200pt]{./img/sopam.pdf}
+%     \caption{The schematic of the operational amplifier}
+%     \label{fig:sopamp}
+% \end{figure}
 
-The last dataset we used is the simulation data of a real-world analog integrated circuit, the circuit is an operational amplifier (OpAmp) with ten design variances, the schematic of the amplifier is shown in \Fref{fig:sopamp}. We randomly sampled the ten design variances, and used HSPICE to get the simulated circuit performances. We considered the gain, unit gain frequency (UGF) and the phase margin (PM) of the OpAmp over five design corners (TT/FF/SS/SF/FS), so there are up to fifteen performances considered. We gathered 10000 samples, and used 2000 points as the training set, the rest 8000 data points are used for testing. The dataset can be seen in the supplementary materials.
+The last dataset we used is the simulation data of a real-world analog integrated circuit, the circuit is an operational amplifier (OpAmp) with ten design variances. We randomly sampled the ten design variances, and used HSPICE to get the simulated circuit performances. We considered the gain, unit gain frequency (UGF) and the phase margin (PM) of the OpAmp over five design corners (TT/FF/SS/SF/FS), so there are up to fifteen performances considered. We gathered 10000 samples, and used 2000 points as the training set, the rest 8000 data points are used for testing. The dataset can be seen in the supplementary materials.
+
+
+The IGP, COGP, SCGP, GPRN-NPV and GPRN-MF modes are compared, the algorithm settings for our MTNN-GP and the compared modes are same with the settings described in \Fref{sec:sarcos}. 
+
+
+The SMSE statistics are listed in \Fref{tab:smse_DAC} and the NLL statistics are given in \Fref{tab:nll_DAC}. Like the previous two datasets, the MTNN-GP model give far better predictions than the IGP and other multi-output GP modes. The SMSE of the COGP model is slightly better than the IGP model, but the NLL results are worse. The SCGP and the GPRN-NPV completely underfitted the dataset, they predict everything to zero.
 
 \begin{table}[!htb]
     \centering
@@ -83,29 +104,24 @@ The last dataset we used is the simulation data of a real-world analog integrate
     \begin{tabular}{lllllll}
         \toprule
         Output & MTNN-GP               &  IGP                  & COGP                  & SCGP          &  GPRN-NPV    & GPRN-MF            \\ \midrule
-        O1     &  6.5e-4 $\pm$  3.5e-5 &  0.20 $\pm$  0.0019   &  0.19 $\pm$  0.0044   &  1  $\pm$  0  &  1  $\pm$  0 &  0.79 $\pm$  0.039 \\
-        O2     &  6.2e-4 $\pm$  3.9e-5 &  0.18 $\pm$  0.0088   &  0.15 $\pm$  0.0033   &  1  $\pm$  0  &  1  $\pm$  0 &  0.73 $\pm$  0.049 \\
-        O3     &  5.4e-4 $\pm$  5.4e-5 &  0.08 $\pm$  0.003    &  0.08 $\pm$  0.002    &  1  $\pm$  0  &  1  $\pm$  0 &  0.70 $\pm$  0.045 \\
-        O4     &  2.4e-4 $\pm$  2.0e-5 &  0.22 $\pm$  0.0015   &  0.05 $\pm$  0.00099  &  1  $\pm$  0  &  1  $\pm$  0 &  0.59 $\pm$  0.065 \\
-        O5     &  2.9e-4 $\pm$  2.2e-5 &  0.40 $\pm$  0.0074   &  0.09 $\pm$  0.00037  &  1  $\pm$  0  &  1  $\pm$  0 &  0.64 $\pm$  0.068 \\
-        O6     &  2.2e-4 $\pm$  1.8e-5 &  0.23 $\pm$  0.0025   &  0.05 $\pm$  0.00073  &  1  $\pm$  0  &  1  $\pm$  0 &  0.61 $\pm$  0.066 \\
-        O7     &  1.3e-3 $\pm$  1.0e-4 &  0.62 $\pm$  0.019    &  0.22 $\pm$  0.0033   &  1  $\pm$  0  &  1  $\pm$  0 &  0.75 $\pm$  0.043 \\
-        O8     &  1.1e-3 $\pm$  1.7e-4 &  0.44 $\pm$  0.0059   &  0.15 $\pm$  0.0021   &  1  $\pm$  0  &  1  $\pm$  0 &  0.71 $\pm$  0.042 \\
-        O9     &  1.1e-3 $\pm$  9.6e-5 &  0.12 $\pm$  0.0021   &  0.07 $\pm$  0.0019   &  1  $\pm$  0  &  1  $\pm$  0 &  0.68 $\pm$  0.037 \\
-        O10    &  1.2e-3 $\pm$  1.1e-4 &  0.40 $\pm$  0.11     &  0.25 $\pm$  0.0045   &  1  $\pm$  0  &  1  $\pm$  0 &  0.82 $\pm$  0.044 \\
-        O11    &  1.1e-3 $\pm$  9.5e-5 &  0.49 $\pm$  0.01     &  0.18 $\pm$  0.0027   &  1  $\pm$  0  &  1  $\pm$  0 &  0.75 $\pm$  0.046 \\
-        O12    &  1.0e-3 $\pm$  6.0e-5 &  0.40 $\pm$  0.071    &  0.10 $\pm$  0.0015   &  1  $\pm$  0  &  1  $\pm$  0 &  0.70 $\pm$  0.043 \\
-        O13    &  3.3e-3 $\pm$  2.7e-5 &  0.09 $\pm$  0.0029   &  0.09 $\pm$  0.00093  &  1  $\pm$  0  &  1  $\pm$  0 &  0.71 $\pm$  0.061 \\
-        O14    &  3.7e-3 $\pm$  3.1e-5 &  0.13 $\pm$  0.0022   &  0.11 $\pm$  0.0024   &  1  $\pm$  0  &  1  $\pm$  0 &  0.74 $\pm$  0.053 \\
-        O15    &  2.8e-3 $\pm$  1.4e-5 &  0.06 $\pm$  0.00051  &  0.06 $\pm$  0.00099  &  1  $\pm$  0  &  1  $\pm$  0 &  0.68 $\pm$  0.059 \\
+        O1     &  \textbf{6.5e-4 $\pm$  3.5e-5} &  0.20 $\pm$  0.0019   &  0.19 $\pm$  0.0044   &  1  $\pm$  0  &  1  $\pm$  0 &  0.79 $\pm$  0.039 \\
+        O2     &  \textbf{6.2e-4 $\pm$  3.9e-5} &  0.18 $\pm$  0.0088   &  0.15 $\pm$  0.0033   &  1  $\pm$  0  &  1  $\pm$  0 &  0.73 $\pm$  0.049 \\
+        O3     &  \textbf{5.4e-4 $\pm$  5.4e-5} &  0.08 $\pm$  0.003    &  0.08 $\pm$  0.002    &  1  $\pm$  0  &  1  $\pm$  0 &  0.70 $\pm$  0.045 \\
+        O4     &  \textbf{2.4e-4 $\pm$  2.0e-5} &  0.22 $\pm$  0.0015   &  0.05 $\pm$  0.00099  &  1  $\pm$  0  &  1  $\pm$  0 &  0.59 $\pm$  0.065 \\
+        O5     &  \textbf{2.9e-4 $\pm$  2.2e-5} &  0.40 $\pm$  0.0074   &  0.09 $\pm$  0.00037  &  1  $\pm$  0  &  1  $\pm$  0 &  0.64 $\pm$  0.068 \\
+        O6     &  \textbf{2.2e-4 $\pm$  1.8e-5} &  0.23 $\pm$  0.0025   &  0.05 $\pm$  0.00073  &  1  $\pm$  0  &  1  $\pm$  0 &  0.61 $\pm$  0.066 \\
+        O7     &  \textbf{1.3e-3 $\pm$  1.0e-4} &  0.62 $\pm$  0.019    &  0.22 $\pm$  0.0033   &  1  $\pm$  0  &  1  $\pm$  0 &  0.75 $\pm$  0.043 \\
+        O8     &  \textbf{1.1e-3 $\pm$  1.7e-4} &  0.44 $\pm$  0.0059   &  0.15 $\pm$  0.0021   &  1  $\pm$  0  &  1  $\pm$  0 &  0.71 $\pm$  0.042 \\
+        O9     &  \textbf{1.1e-3 $\pm$  9.6e-5} &  0.12 $\pm$  0.0021   &  0.07 $\pm$  0.0019   &  1  $\pm$  0  &  1  $\pm$  0 &  0.68 $\pm$  0.037 \\
+        O10    &  \textbf{1.2e-3 $\pm$  1.1e-4} &  0.40 $\pm$  0.11     &  0.25 $\pm$  0.0045   &  1  $\pm$  0  &  1  $\pm$  0 &  0.82 $\pm$  0.044 \\
+        O11    &  \textbf{1.1e-3 $\pm$  9.5e-5} &  0.49 $\pm$  0.01     &  0.18 $\pm$  0.0027   &  1  $\pm$  0  &  1  $\pm$  0 &  0.75 $\pm$  0.046 \\
+        O12    &  \textbf{1.0e-3 $\pm$  6.0e-5} &  0.40 $\pm$  0.071    &  0.10 $\pm$  0.0015   &  1  $\pm$  0  &  1  $\pm$  0 &  0.70 $\pm$  0.043 \\
+        O13    &  \textbf{3.3e-3 $\pm$  2.7e-5} &  0.09 $\pm$  0.0029   &  0.09 $\pm$  0.00093  &  1  $\pm$  0  &  1  $\pm$  0 &  0.71 $\pm$  0.061 \\
+        O14    &  \textbf{3.7e-3 $\pm$  3.1e-5} &  0.13 $\pm$  0.0022   &  0.11 $\pm$  0.0024   &  1  $\pm$  0  &  1  $\pm$  0 &  0.74 $\pm$  0.053 \\
+        O15    &  \textbf{2.8e-3 $\pm$  1.4e-5} &  0.06 $\pm$  0.00051  &  0.06 $\pm$  0.00099  &  1  $\pm$  0  &  1  $\pm$  0 &  0.68 $\pm$  0.059 \\
         \bottomrule
     \end{tabular}
 \end{table}
-
-The IGP, COGP, SCGP, GPRN-NPV and GPRN-MF modes are compared, the algorithm settings for our MTNN-GP and the compared modes are same with the settings described in \Fref{sec:sarcos}. 
-
-The SMSE statistics are listed in \Fref{tab:smse_DAC} and the NLL statistics are given in \Fref{tab:nll_DAC}. Like the previous two datasets, the MTNN-GP model give far better predictions than the IGP and other multi-output GP modes. The SMSE of the COGP model is slightly better than the IGP model, but the NLL results are worse. The SCGP and the GPRN-NPV completely underfitted the dataset, they predict everything to zero.
-
 
 \begin{table}[!htb]
     \centering
@@ -114,21 +130,21 @@ The SMSE statistics are listed in \Fref{tab:smse_DAC} and the NLL statistics are
     \begin{tabular}{lllllll}
         \toprule
         Output & MTNN-GP              & IGP                     & COGP                & SCGP                & GPRN-NPV & GPRN-MF \\ \midrule
-        O1     &  -2.3  $\pm$  0.036  &  0.43    $\pm$  0.0058  &  4.7  $\pm$  0.22   &  1.8  $\pm$  0.17   &  NA      & NA \\
-        O2     &  -2.5  $\pm$  0.024  &  0.18    $\pm$  0.011   &  3.2  $\pm$  0.13   &  1.9  $\pm$  0.15   &  NA      & NA \\
-        O3     &  -2.4  $\pm$  0.032  &  -0.1    $\pm$  0.0035  &  3.2  $\pm$  0.14   &  1.6  $\pm$  0.11   &  NA      & NA \\
-        O4     &  -3    $\pm$  0.04   &  -1.1    $\pm$  0.0084  &  2    $\pm$  0.068  &  1.5  $\pm$  0.16   &  NA      & NA \\
-        O5     &  -3    $\pm$  0.043  &  -1.1    $\pm$  0.029   &  2.1  $\pm$  0.17   &  1.5  $\pm$  0.11   &  NA      & NA \\
-        O6     &  -3    $\pm$  0.035  &  -0.95   $\pm$  0.014   &  1.8  $\pm$  0.11   &  1.7  $\pm$  0.17   &  NA      & NA \\
-        O7     &  -2.1  $\pm$  0.051  &  -0.73   $\pm$  0.01    &  5.7  $\pm$  0.35   &  1.5  $\pm$  0.049  &  NA      & NA \\
-        O8     &  -2.3  $\pm$  0.057  &  -1      $\pm$  0.056   &  4.9  $\pm$  0.27   &  1.5  $\pm$  0.038  &  NA      & NA \\
-        O9     &  -2.2  $\pm$  0.031  &  -1      $\pm$  0.016   &  2.5  $\pm$  0.19   &  1.6  $\pm$  0.1    &  NA      & NA \\
-        O10    &  -2    $\pm$  0.059  &  0.33    $\pm$  0.062   &  5.1  $\pm$  0.53   &  1.8  $\pm$  0.11   &  NA      & NA \\
-        O11    &  -2.2  $\pm$  0.064  &  -0.046  $\pm$  0.015   &  4    $\pm$  0.095  &  1.8  $\pm$  0.099  &  NA      & NA \\
-        O12    &  -2.1  $\pm$  0.032  &  -0.27   $\pm$  0.016   &  3.6  $\pm$  0.28   &  1.7  $\pm$  0.069  &  NA      & NA \\
-        O13    &  -2.7  $\pm$  0.032  &  0.051   $\pm$  0.0075  &  2.7  $\pm$  0.14   &  1.6  $\pm$  0.17   &  NA      & NA \\
-        O14    &  -2.7  $\pm$  0.034  &  -0.046  $\pm$  0.0025  &  2.5  $\pm$  0.25   &  1.7  $\pm$  0.22   &  NA      & NA \\
-        O15    &  -2.7  $\pm$  0.03   &  -0.2    $\pm$  0.0036  &  2.5  $\pm$  0.2    &  1.5  $\pm$  0.06   &  NA      & NA \\
+        O1     &  \textbf{-2.3  $\pm$  0.036}  &  0.43    $\pm$  0.0058  &  4.7  $\pm$  0.22   &  1.8  $\pm$  0.17   &  NA      & NA \\
+        O2     &  \textbf{-2.5  $\pm$  0.024}  &  0.18    $\pm$  0.011   &  3.2  $\pm$  0.13   &  1.9  $\pm$  0.15   &  NA      & NA \\
+        O3     &  \textbf{-2.4  $\pm$  0.032}  &  -0.1    $\pm$  0.0035  &  3.2  $\pm$  0.14   &  1.6  $\pm$  0.11   &  NA      & NA \\
+        O4     &  \textbf{-3    $\pm$  0.04 }  &  -1.1    $\pm$  0.0084  &  2    $\pm$  0.068  &  1.5  $\pm$  0.16   &  NA      & NA \\
+        O5     &  \textbf{-3    $\pm$  0.043}  &  -1.1    $\pm$  0.029   &  2.1  $\pm$  0.17   &  1.5  $\pm$  0.11   &  NA      & NA \\
+        O6     &  \textbf{-3    $\pm$  0.035}  &  -0.95   $\pm$  0.014   &  1.8  $\pm$  0.11   &  1.7  $\pm$  0.17   &  NA      & NA \\
+        O7     &  \textbf{-2.1  $\pm$  0.051}  &  -0.73   $\pm$  0.01    &  5.7  $\pm$  0.35   &  1.5  $\pm$  0.049  &  NA      & NA \\
+        O8     &  \textbf{-2.3  $\pm$  0.057}  &  -1      $\pm$  0.056   &  4.9  $\pm$  0.27   &  1.5  $\pm$  0.038  &  NA      & NA \\
+        O9     &  \textbf{-2.2  $\pm$  0.031}  &  -1      $\pm$  0.016   &  2.5  $\pm$  0.19   &  1.6  $\pm$  0.1    &  NA      & NA \\
+        O10    &  \textbf{-2    $\pm$  0.059}  &  0.33    $\pm$  0.062   &  5.1  $\pm$  0.53   &  1.8  $\pm$  0.11   &  NA      & NA \\
+        O11    &  \textbf{-2.2  $\pm$  0.064}  &  -0.046  $\pm$  0.015   &  4    $\pm$  0.095  &  1.8  $\pm$  0.099  &  NA      & NA \\
+        O12    &  \textbf{-2.1  $\pm$  0.032}  &  -0.27   $\pm$  0.016   &  3.6  $\pm$  0.28   &  1.7  $\pm$  0.069  &  NA      & NA \\
+        O13    &  \textbf{-2.7  $\pm$  0.032}  &  0.051   $\pm$  0.0075  &  2.7  $\pm$  0.14   &  1.6  $\pm$  0.17   &  NA      & NA \\
+        O14    &  \textbf{-2.7  $\pm$  0.034}  &  -0.046  $\pm$  0.0025  &  2.5  $\pm$  0.25   &  1.7  $\pm$  0.22   &  NA      & NA \\
+        O15    &  \textbf{-2.7  $\pm$  0.03 }  &  -0.2    $\pm$  0.0036  &  2.5  $\pm$  0.2    &  1.5  $\pm$  0.06   &  NA      & NA \\
         \bottomrule
     \end{tabular}
 \end{table}
