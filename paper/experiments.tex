@@ -2,7 +2,7 @@
 
 % TODO: report training time
 
-We implemented the multi-output Gaussian process model using Python 3.5.2. The gradient of the loss function in \Fref{eq:mo_likelihood} is calculated by \texttt{autograd} package \cite{maclaurin2015autograd}. We compared our model with several state-of-the-art multi-output GP models on three dataset. The datasets include two public available datasets and one dataset sampled from a real-world analog integrated circuit, as summarized in \Fref{tab:datasets}. All the datasets and the test code are provided in the supplementary materials, and will be made public upon publication.
+We implemented the multi-output Gaussian process model using Python 3.5.2. The gradient of the loss function in \eqref{eq:mo_likelihood} is calculated by \texttt{autograd} package \cite{maclaurin2015autograd}. We compared our model with several state-of-the-art multi-output GP models on three dataset. The datasets include two public available datasets and one dataset sampled from a real-world analog integrated circuit, as summarized in \Fref{tab:datasets}. All the datasets and the test code are provided in the supplementary materials, and will be made public upon publication.
 
 \begin{table}[!htb]
     \centering
@@ -48,18 +48,6 @@ The SMSE and NLL statistics are given in \Fref{tab:result_enb}. The GPRN-NPV and
 
 \subsection{The SARCOS dataset}\label{sec:sarcos}
 
-We use the SARCOS dataset\footnote{available at http://www.gaussianprocess.org/gpml/data/} to test the scalability of our model for large dataset. The dataset comes from a robot inverse dynamic model, the whole dataset contains 48933 samples. Each sample has 21 inputs (the joint positions, joint velocities and joint accelerations) and 7 targets (seven joint torques). 44484 samples are used as the training set, and the remaining 4449 samples are used as the testing data. We select the 4-th and 7-th torques as the two outputs, which is the same setting as \cite{nguyen2014collaborative} and \cite{NIPS2015_5665}. We also compared our experimental results with the results reported by \cite{nguyen2014collaborative,NIPS2015_5665}.
-
-% For our MTNN-GP model, we used two layers with 100 hidden units as the shared layers, two layers with 100 hidden units are use
-For our MTNN-GP model, we use 2 layers for the shared layers and 2 layers for the task-specific layers per output. Each layer has 100 hidden units with the tanh activation function. For the independent GP model, we used the FITC approximation with 200 inducing points to speedup the training. As the SCGP, GPRN-NPV and GPRN-MF cannot scale to such large dataset, in each run, we randomly select 2000 data points to train the SCGP model, and 1000 data points for the GPRN-NPV/GPRN-MF modes.
-
-The SMSE and NLL results are listed in \Fref{tab:result_sarcos}. It can be clearly seen that our MTNN-GP gave better predictions than the independent GP modes, and the IGP model outperformed all other multi-output Gaussian process models.
-
-Note that the data of the last two rows in \Fref{tab:result_sarcos} are not from experiments we performed, but from the reported results of two multi-output Gaussian process modes \cite{nguyen2014collaborative, NIPS2015_5665}. We show that simply using independent GP model with FITC approximation can generate considerably better performances.
-
-The reported results of the COGP model are different with our experimental results due to the different settings. In \cite{nguyen2014collaborative}, only 2000 training points were used for the first output, while we used the whole 44484 training data for both outputs. Also, we used 200 inducing points (same as the independent GP), while in \cite{nguyen2014collaborative}, 500 inducing points are used. The COGP results from our experiments gave better predictions for the first output but worse predictions for the second output.
-
-
 \begin{table}[!htb]
     \centering
     \caption{The SMSE and NLL statistics of the SARCOS dataset}
@@ -78,6 +66,19 @@ The reported results of the COGP model are different with our experimental resul
         \bottomrule
     \end{tabular}
 \end{table}
+
+We use the SARCOS dataset\footnote{available at http://www.gaussianprocess.org/gpml/data/} to test the scalability of our model for large dataset. The dataset comes from a robot inverse dynamic model, the whole dataset contains 48933 samples. Each sample has 21 inputs (the joint positions, joint velocities and joint accelerations) and 7 targets (seven joint torques). 44484 samples are used as the training set, and the remaining 4449 samples are used as the testing data. We select the 4-th and 7-th torques as the two outputs, which is the same setting as \cite{nguyen2014collaborative} and \cite{NIPS2015_5665}. We also compared our experimental results with the results reported by \cite{nguyen2014collaborative,NIPS2015_5665}.
+
+% For our MTNN-GP model, we used two layers with 100 hidden units as the shared layers, two layers with 100 hidden units are use
+For our MTNN-GP model, we use 2 layers for the shared layers and 2 layers for the task-specific layers per output. Each layer has 100 hidden units with the tanh activation function. For the independent GP model, we used the FITC approximation with 200 inducing points to speedup the training. As the SCGP, GPRN-NPV and GPRN-MF cannot scale to such large dataset, in each run, we randomly select 2000 data points to train the SCGP model, and 1000 data points for the GPRN-NPV/GPRN-MF modes.
+
+The SMSE and NLL results are listed in \Fref{tab:result_sarcos}. It can be clearly seen that our MTNN-GP gave better predictions than the independent GP modes, and the IGP model outperformed all other multi-output Gaussian process models.
+
+Note that the data of the last two rows in \Fref{tab:result_sarcos} are not from experiments we performed, but from the reported results of two multi-output Gaussian process modes \cite{nguyen2014collaborative, NIPS2015_5665}. We show that simply using independent GP model with FITC approximation can generate considerably better performances.
+
+The reported results of the COGP model are different with our experimental results due to the different settings. In \cite{nguyen2014collaborative}, only 2000 training points were used for the first output, while we used the whole 44484 training data for both outputs. Also, we used 200 inducing points (same as the independent GP), while in \cite{nguyen2014collaborative}, 500 inducing points are used. The COGP results from our experiments gave better predictions for the first output but worse predictions for the second output.
+
+
 
 
 \subsection{Behaviour Modeling of Operational Amplifier}\label{sec:dac14}

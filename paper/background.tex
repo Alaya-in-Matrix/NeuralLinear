@@ -64,11 +64,11 @@ If a zeros mean Gaussian prior with covariance matrix $\Sigma_p$ is imposed on t
     \label{eq:kernel_from_weight}
     k(\bm{x}, \bm{y}) = \phi(\bm{x})^T \Sigma_p \phi(\bm{y}).
 \end{equation}
-The GP model defined from finite feature map is called \emph{degenerate} Gaussian process, as the covariance matrix calculated from \Fref{eq:kernel_from_weight} would have a lower rank $M$ than $N$.
+The GP model defined from finite feature map is called \emph{degenerate} Gaussian process, as the covariance matrix calculated from \eqref{eq:kernel_from_weight} would have a lower rank $M$ than $N$.
 
 %XXX: mension the matrix inversion lemma
 
-If we set $\Sigma_p$ to a diagonal matrix $\Sigma_p = \frac{\sigma_p^2}{M} I$, the predictive distribution of \Fref{eq:GPRPred} can be re-formulated as
+If we set $\Sigma_p$ to a diagonal matrix $\Sigma_p = \frac{\sigma_p^2}{M} I$, the predictive distribution of \eqref{eq:GPRPred} can be re-formulated as
 \begin{equation}
     \left\{
         \begin{array}{lll}
@@ -81,17 +81,17 @@ If we set $\Sigma_p$ to a diagonal matrix $\Sigma_p = \frac{\sigma_p^2}{M} I$, t
     \label{eq:DegeneratePred}
 \end{equation}
 
-Note that the when calculating $\mu(\bm{x})$ and $\sigma^2(\bm{x})$ directly using \Fref{eq:GPRPred}, the time complexity are $O(N)$ and $O(N^2)$, respectively. However, if \Fref{eq:DegeneratePred} is used, the time complexity for calculating $\mu(\bm{x})$ and $\sigma^2(\bm{x})$ become $O(M)$ and $O(M^2)$ as long as the inverse of $A$ is pre-calculated.
+Note that the when calculating $\mu(\bm{x})$ and $\sigma^2(\bm{x})$ directly using \eqref{eq:GPRPred}, the time complexity are $O(N)$ and $O(N^2)$, respectively. However, if \eqref{eq:DegeneratePred} is used, the time complexity for calculating $\mu(\bm{x})$ and $\sigma^2(\bm{x})$ become $O(M)$ and $O(M^2)$ as long as the inverse of $A$ is pre-calculated.
 
-The log likelihood of the training data defined in \Fref{eq:GPloglikelihood} can also be re-formulated as \cite{lazaro2010marginalized}
+The log likelihood of the training data defined in \eqref{eq:GPloglikelihood} can also be re-formulated as \cite{lazaro2010marginalized}
 \begin{equation}
     \label{eq:DegenerateGPloglikelihood}
     \log p(\bm{y} | X, \bm{\theta}) = -\frac{1}{2\sigma_n^2}(\bm{y}^T\bm{y} - \bm{y}^T \Phi^T A^{-1} \Phi \bm{y}) - \frac{1}{2}\log |A| + \frac{M}{2} \log \frac{M \sigma_n^2}{\sigma_p^2} - \frac{N}{2} \log(2 \pi \sigma_n^2),
 \end{equation}
-where $\bm{\theta}$ is the vector containg $\sigma_p$, $\sigma_n$ and the parameters of $\phi$. In \Fref{eq:GPloglikelihood}, the covariance matrix $K$ should be inverted, which would take $O(N^3)$ operations. For \Fref{eq:DegenerateGPloglikelihood}, the matrix $A$ is of the size $M \times M$, so the time complexity for calculating \Fref{eq:DegenerateGPloglikelihood} is only $O(NM^2)$. Note that $M \ll N$.
+where $\bm{\theta}$ is the vector containg $\sigma_p$, $\sigma_n$ and the parameters of $\phi$. In \eqref{eq:GPloglikelihood}, the covariance matrix $K$ should be inverted, which would take $O(N^3)$ operations. For \eqref{eq:DegenerateGPloglikelihood}, the matrix $A$ is of the size $M \times M$, so the time complexity for calculating \eqref{eq:DegenerateGPloglikelihood} is only $O(NM^2)$. Note that $M \ll N$.
 
 % XXX: the loss function for the
-It can be seen that GP model can be constructed from a finite feature map. Neural network (NN) can provide effective feature representations. It is thus naturally to use a neural network to approximate the feature map $\phi$. In \cite{lazaro2010marginalized}, a neural network with one hidden layer is proposed to approximate the feature map $\phi(\bm{x})$. The parameters of the neural network are obtained by maximizing the likelihood function in \Fref{eq:DegenerateGPloglikelihood} with gradient back-propagation. In \cite{huang2015scalable}, the single hidden layer is extended to multiple layers. The Gaussian process with kernel characterized by neural network is illustrated in \Fref{fig:NNGP}. A similar work is \cite{snoek2015scalable}, where a neural network is firstly pre-trained, and Bayesian linear regression is then performed to the last layer.
+It can be seen that GP model can be constructed from a finite feature map. Neural network (NN) can provide effective feature representations. It is thus naturally to use a neural network to approximate the feature map $\phi$. In \cite{lazaro2010marginalized}, a neural network with one hidden layer is proposed to approximate the feature map $\phi(\bm{x})$. The parameters of the neural network are obtained by maximizing the likelihood function in \eqref{eq:DegenerateGPloglikelihood} with gradient back-propagation. In \cite{huang2015scalable}, the single hidden layer is extended to multiple layers. The Gaussian process with kernel characterized by neural network is illustrated in \Fref{fig:NNGP}. A similar work is \cite{snoek2015scalable}, where a neural network is firstly pre-trained, and Bayesian linear regression is then performed to the last layer.
 
 % \paragraph{Deep ensemble}
 \subsection{Model Averaging to Improve the Quality of Uncertainty Prediction}\label{sec:deepensemble}
@@ -109,4 +109,4 @@ Firstly, $K$ independent probabilistic neural network models are trained with ra
     \label{eq:deepensemble}
 \end{equation}
 
-In \cite{lazaro2010marginalized, huang2015scalable}, the uncertainty is obtained according to \Fref{eq:DegeneratePred}. However, in \cite{lakshminarayanan2017simple}, the uncertainty is generated by adversarial training. It is shown that the ensemble technique defined in \Fref{eq:deepensemble} can greatly improve the quality of the uncertainty measure. In \cite{lakshminarayanan2017simple}, with $K = 5$, the model-averaging significantly improves the quality of the uncertainty estimation, and outperforms Bayesian-based models like probabilistic backpropagation \cite{hernandez2015probabilistic} and MC-dropout \cite{gal2016dropout}.
+In \cite{lazaro2010marginalized, huang2015scalable}, the uncertainty is obtained according to \eqref{eq:DegeneratePred}. However, in \cite{lakshminarayanan2017simple}, the uncertainty is generated by adversarial training. It is shown that the ensemble technique defined in \eqref{eq:deepensemble} can greatly improve the quality of the uncertainty measure. In \cite{lakshminarayanan2017simple}, with $K = 5$, the model-averaging significantly improves the quality of the uncertainty estimation, and outperforms Bayesian-based models like probabilistic backpropagation \cite{hernandez2015probabilistic} and MC-dropout \cite{gal2016dropout}.
