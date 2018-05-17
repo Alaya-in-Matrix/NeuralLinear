@@ -1,9 +1,20 @@
 \section{Introduction}
 
-Gaussian process regression is important, as it models the uncertainty, so the it \emph{know what it knows}.
+% Gaussian process regression is important, as it models the uncertainty, so the it \emph{know what it knows}.
+The Gaussian process (GP) model is popular as the model gives well-calibrated uncertainty. The uncertainty estimation makes the model more robust to unseen events as the model \emph{knows what it knows}. The conventional GP models are usually designed to learn a scalar-valued fuction, however, in some scenarios, we need to model a vector-valued function, and the multiple outputs are possibly correlated. Instead of treating the vector-valued fuction as multiple seperate scalar-valued functions, the multi-output learning\cite{zhang2017survey} tries to build a unified model and simultaneously learn all the outputs, the overall performance could be enhanced by exploitying the correlations of the tasks.
 
-Sometimes, we need to model multi tasks.
+% Existing methods: convolution based, krok based, GPRN.
 
-Existing methods: convolution based, krok based, GPRN.
+% Multi-output learning in the contex of GP
 
 Our model is better.
+
+% XXX:
+% advantage:
+%   the correlation modeling is more flexibility
+%   efficient
+
+% XXX:
+% Kronecker product: the covaiance matrix is decomposed as the Kronecker product of covaiance of task and covaiance of input
+% GPRN: $\bm{f}(x) = W(\bm{x})^T \bm{lf}(\bm{x})$, where $\bm{x}$ and $W(\bm{x})$ are GP
+% convolution: 
