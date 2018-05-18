@@ -59,8 +59,8 @@ The SMSE and NLL statistics are given in \Fref{tab:result_enb}. The GPRN-NPV and
         IGP:      & 0.0045  \(\pm\) 0.000153          & 0.00787 \(\pm\) 0.000257          & 1.06  \(\pm\) 0.00941          & -0.236 \(\pm\) 0.0124  \\
         GOGP:     & 0.00852 \(\pm\) 0.000241          & 0.0149  \(\pm\) 0.000433          & 2.48  \(\pm\) 0.0577           & 2.4    \(\pm\) 0.097   \\
         SCGP:     & 4.7     \(\pm\) 0.0245            & 3.39    \(\pm\) 0.0192            & 4.63  \(\pm\) 0.0128           & 2.87   \(\pm\) 0.011   \\
-        GPRN-NPV: & 2.49    \(\pm\) 2.63              & 1.79    \(\pm\) 1.88              & NA                             & NA    \\
-        GPRN-MF:  & 1.11    \(\pm\) 1.8               & 0.826   \(\pm\) 1.33              & NA                             & NA    \\ \midrule
+        GPRN-NPV: & 4.99    \(\pm\) 0                 & 3.58    \(\pm\) 0                 & NA                             & NA    \\
+        GPRN-MF:  & 2.21    \(\pm\) 2.06              & 1.65    \(\pm\) 1.51              & NA                             & NA    \\ \midrule
         COGP\cite{nguyen2014collaborative}            & 0.2631            & 0.0127  & 3.6   & 0.8302                 \\
         GPRN-AVI\cite{NIPS2015_5665}                  & $\approx$ 0.009   & > 0.009 & NA    & NA     \\
         \bottomrule
@@ -72,13 +72,11 @@ We use the SARCOS dataset\footnote{available at http://www.gaussianprocess.org/g
 % For our MTNN-GP model, we used two layers with 100 hidden units as the shared layers, two layers with 100 hidden units are use
 For our MTNN-GP model, we use the same setting as we used for the ENB dataset. For the independent GP model, we used the FITC approximation with 200 inducing points to speedup the training. As the SCGP, GPRN-NPV and GPRN-MF cannot scale to such large dataset, in each run, we randomwe use the same setting as we used for the ENB dataset
 
-The SMSE and NLL results are listed in \Fref{tab:result_sarcos}. It can be clearly seen that our MTNN-GP gave better predictions than the independent GP modes, and the IGP model outperformed all other multi-output Gaussian process models.
+The SMSE and NLL results are listed in \Fref{tab:result_sarcos}. It can be clearly seen that our MTNN-GP gave better predictions than the independent GP modes, and the IGP model outperformed all other multi-output Gaussian process models. 
 
-Note that the data of the last two rows in \Fref{tab:result_sarcos} are not from experiments we performed, but from the reported results of two multi-output Gaussian process modes \cite{nguyen2014collaborative, NIPS2015_5665}. We show that simply using independent GP model with FITC approximation can generate considerably better performances.
+Note that the data of the last two rows in \Fref{tab:result_sarcos} are not from experiments we performed, but from the reported results of two multi-output Gaussian process models \cite{nguyen2014collaborative, NIPS2015_5665}. We show that simply using independent GP model with FITC approximation can generate considerably better performances than the reported results.
 
 The reported results of the COGP model are different with our experimental results due to the different settings. In \cite{nguyen2014collaborative}, only 2000 training points were used for the first output, while we used the whole 44484 training data for both outputs. Also, we used 200 inducing points (same as the independent GP), while in \cite{nguyen2014collaborative}, 500 inducing points are used. The COGP results from our experiments gave better predictions for the first output but worse predictions for the second output.
-
-
 
 
 \subsection{Behaviour Modeling of Operational Amplifier}\label{sec:dac14}
@@ -130,7 +128,7 @@ The SMSE statistics are listed in \Fref{tab:smse_DAC} and the NLL statistics are
     \label{tab:nll_DAC}
     \begin{tabular}{lllllll}
         \toprule
-        Output & MTNN-GP              & IGP                     & COGP                & SCGP                & GPRN-NPV & GPRN-MF \\ \midrule
+        Output & MTNN-GP                       & IGP                     & COGP                & SCGP                & GPRN-NPV & GPRN-MF \\ \midrule
         O1     &  \textbf{-2.3  $\pm$  0.036}  &  0.43    $\pm$  0.0058  &  4.7  $\pm$  0.22   &  1.8  $\pm$  0.17   &  NA      & NA \\
         O2     &  \textbf{-2.5  $\pm$  0.024}  &  0.18    $\pm$  0.011   &  3.2  $\pm$  0.13   &  1.9  $\pm$  0.15   &  NA      & NA \\
         O3     &  \textbf{-2.4  $\pm$  0.032}  &  -0.1    $\pm$  0.0035  &  3.2  $\pm$  0.14   &  1.6  $\pm$  0.11   &  NA      & NA \\
