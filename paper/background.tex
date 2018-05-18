@@ -8,9 +8,9 @@ by a latent function $f(\bm{x})$ with addictive noise $\epsilon \sim N(0, \sigma
     \label{eq:yf}
     y_i = f(\bm{x}_i) + \epsilon_i.
 \end{equation}
-We use Gaussian process (GP)~\cite{GPML} to learn the latent function $f(\bm{x})$. A GP model defines a prior over $f(\bm{x})$. GP is fully characterized by a mean function $m(\bm{x})$ and a covariance function $k(\bm{x}, \bm{y})$. For the training set $D_T$, the latent function values $\bm{f} = (f(\bm{x}_1),~\dots~f(\bm{x}_N))^T$ follow a joint Gaussian distribution $\bm{f} \sim N(\bm{m}, K)$, where $\bm{m} = (m(\bm{x}_1),~\dots~,m(\bm{x}_N))^T$ is the mean vector, and $K_{ij} = k(\bm{x}_i, \bm{x}_j)$ is the covariance matrix. The mean function $m(\bm{x})$ can be any function, while the kernel function $k(\bm{x}, \bm{y})$ has to make sure that the covariance matrix is a symmetric positive definite (SPD) matrix. In this paper, we fix $m(\bm{x}) = 0$.
+Here $N(\cdot, \cdot)$ denotes a Gaussian distribution. We use Gaussian process (GP)~\cite{GPML} to learn the latent function $f(\bm{x})$. A GP model defines a prior over $f(\bm{x})$. GP is fully characterized by a mean function $m(\bm{x})$ and a covariance function $k(\bm{x}, \bm{y})$. For the training set $D_T$, the latent function values $\bm{f} = (f(\bm{x}_1),~\dots~f(\bm{x}_N))^T$ follow a joint Gaussian distribution $\bm{f} \sim N(\bm{m}, K)$, where $\bm{m} = (m(\bm{x}_1),~\dots~,m(\bm{x}_N))^T$ is the mean vector, and $K_{ij} = k(\bm{x}_i, \bm{x}_j)$ is the covariance matrix. The mean function $m(\bm{x})$ can be any function, while the kernel function $k(\bm{x}, \bm{y})$ has to make sure that the covariance matrix is a symmetric positive definite (SPD) matrix. In this paper, we fix $m(\bm{x}) = 0$.
 
-Given a new input $\bm{x}_*$, GP predicts the distribution of the output $y \sim N(\mu(\bm{x}_*), \sigma^2(\bm{x}_*))$, where $\mu(\bm{x}_*)$ and $\sigma^2(\bm{x}_*)$ can be expressed as
+Given a new input $\bm{x}_*$, GP model predicts the distribution of the output, i.e., $y \sim N(\mu(\bm{x}_*), \sigma^2(\bm{x}_*))$, where $\mu(\bm{x}_*)$ and $\sigma^2(\bm{x}_*)$ can be expressed as
 
 \begin{equation}
     \left\{
@@ -22,7 +22,7 @@ Given a new input $\bm{x}_*$, GP predicts the distribution of the output $y \sim
     \label{eq:GPRPred}
 \end{equation}
 
-where $k(\bm{x}_*, X) = (k(\bm{x}_*, \bm{x}_1),~\dots~,k(\bm{x}_*, \bm{x}_N))$ and $k(X, \bm{x}_*) = k(\bm{x}_*, X)^T$. In \eqref{eq:GPRPred}, the $\mu(\bm{x}_*)$ and $\sigma^2(\bm{x}_*)$ and be viewed as the prediction and the uncertainty measure.
+where $k(\bm{x}_*, X) = (k(\bm{x}_*, \bm{x}_1),~\dots~,k(\bm{x}_*, \bm{x}_N))$ and $k(X, \bm{x}_*) = k(\bm{x}_*, X)^T$. In \eqref{eq:GPRPred}, $\mu(\bm{x}_*)$ and $\sigma^2(\bm{x}_*)$ and be viewed as the prediction and the uncertainty measure.
 
 There are usually some hyperparameters for a GP model, including the noise level $\sigma_n$ and the hyperparameters for the kernel functions. For example, the squared exponential kernel is a commonly used kernel in GP regression. The kernel function is defined as
 
@@ -30,7 +30,7 @@ There are usually some hyperparameters for a GP model, including the noise level
     \label{eq:GaussianCovarianceFunction}
     k(\bm{x}_i, \bm{x}_j) = \sigma_f^2 \exp\Big(-\frac{1}{2}(\bm{x}_i - \bm{x}_j)^T\Lambda^{-1}(\bm{x}_i - \bm{x}_j)\Big),
 \end{equation}
-where $\Lambda = \mathrm{diag}(l_1, \dots, l_d)$ is a diagonal matrix and $l_i$ denotes the length scale of the $i$-th dimension, $\sigma_f$ and $\Lambda$ are the hyperparameters for the kernel. Denote $\bm{\theta}$ as the vector of hyperparameters, the hyperparameters can be learnt via maximum likelihood estimation (MLE) by maximizing the following likelihood function
+where $\Lambda = \mathrm{diag}(l_1, \dots, l_d)$ is a diagonal matrix and $l_i$ denotes the length scale of the $i$-th dimension. $\sigma_f$ and $\Lambda$ are the hyperparameters for the kernel. Denote $\bm{\theta}$ as the vector of hyperparameters, the hyperparameters can be learnt via maximum likelihood estimation (MLE) by maximizing the following likelihood function
 
 \begin{equation}
     \label{eq:GPloglikelihood}
