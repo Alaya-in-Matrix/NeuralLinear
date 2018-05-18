@@ -15,11 +15,10 @@ Suppose we have $N$ observations $D_Q = \{X, Y | X \in R^{D \times N}, Y \in R^{
     \label{eq:mo_kernel}
     \left\{
     \begin{array}{lll}
-        y_i                 &=&    f_i(\bm{x}) + \epsilon_i  \\
+        k_i(\bm{x}, \bm{y}) &=&    \phi_i(\phi_s(\bm{x}))^T~\frac{\sigma_{p, i}^2}{M_i}~\phi_i(\phi_s(\bm{y})) \\
         f_i                 &\sim& \mathcal{GP}(0, k_i)      \\
-        \epsilon_i          &\sim& N(0, \sigma_{n, i}^2)     \\
-        k_i(\bm{x}, \bm{y}) &=&    \phi_i(\phi_s(\bm{x}))^T~\frac{\sigma_{p, i}^2}{M_i}~\phi_i(\phi_s(\bm{y}))
-    \end{array}
+        y_i                 &\sim& N(f_i(\bm{x}), \sigma_{n, i}^2)
+    \end{array}.
     \right.
 \end{equation}
 

@@ -53,11 +53,12 @@ A Gaussian process model can also be derived from a weight space view. Let $\phi
 
 \begin{equation}
     \label{eq:weightspace}
+    \left\{
     \begin{array}{lll}
         f(\bm{x}) &=&    \bm{w}^T \phi(\bm{x})   \\
-        y_i       &=&    f(\bm{x_i}) + \epsilon  \\
-        \epsilon  &\sim& N(0, \sigma_n^2)
+        y_i       &=&    N(f(\bm{x}_i), \sigma_n^2)
     \end{array}.
+    \right.
 \end{equation}
 
 If a zeros mean Gaussian prior with covariance matrix $\Sigma_p$ is imposed on the weights $\bm{w}$, i.e., $\bm{w} \sim N(0, \Sigma_p)$, it can be proved that $f$ follows a Gaussian process $f \sim \mathcal{GP}(0, k)$ \cite{GPML}, with the kernel function $k$ defined as
@@ -69,7 +70,7 @@ The GP model defined from finite feature map is called \emph{degenerate} Gaussia
 
 %XXX: mension the matrix inversion lemma
 
-If we set $\Sigma_p$ to a diagonal matrix $\Sigma_p = \frac{\sigma_p^2}{M} I$\cite{lazaro2010marginalized}, the predictive distribution of \eqref{eq:GPRPred} can be reformulated as
+If we set $\Sigma_p$ to a diagonal matrix $\Sigma_p = \frac{\sigma_p^2}{M} I$, the predictive distribution of \eqref{eq:GPRPred} can be reformulated as\cite{GPML,lazaro2010marginalized}
 \begin{equation}
     \left\{
         \begin{array}{lll}
@@ -92,7 +93,7 @@ The log likelihood of the training data defined in \eqref{eq:GPloglikelihood} ca
 where $\bm{\theta}$ is the vector containing $\sigma_p$, $\sigma_n$ and the parameters of $\phi$. In \eqref{eq:GPloglikelihood}, the covariance matrix $K$ should be inverted, which would take $O(N^3)$ operations. For \eqref{eq:DegenerateGPloglikelihood}, the matrix $A$ is of the size $M \times M$, so the time complexity for calculating \eqref{eq:DegenerateGPloglikelihood} is only $O(NM^2 + M^3)$.
 
 % XXX: the loss function for the
-It can be seen that GP model can be constructed from a finite feature map. Neural network (NN) can provide effective feature representations, it is thus natural to use a neural network as the feature map $\phi$. In \cite{lazaro2010marginalized}, a neural network with one hidden layer is proposed as the feature map $\phi(\bm{x})$. The weights of the neural network are obtained by maximizing the likelihood function in \eqref{eq:DegenerateGPloglikelihood} with gradient back-propagation. In \cite{huang2015scalable}, the single hidden layer is extended to multiple layers. The Gaussian process with kernel characterized by neural network is illustrated in \Fref{fig:NNGP}. A similar work is \cite{snoek2015scalable}, to perform Bayesian optimization, a neural network is firstly pre-trained, and Bayesian linear regression is then performed to the last layer.
+It can be seen that GP model can be constructed from a finite feature map. Neural network (NN) can provide effective feature representations, it is thus natural to use a neural network as the feature map $\phi$. In \cite{lazaro2010marginalized}, a neural network with one hidden layer is proposed as the feature map $\phi(\bm{x})$. The weights of the neural network are obtained by maximizing the likelihood function in \eqref{eq:DegenerateGPloglikelihood} with gradient back-propagation. In \cite{huang2015scalable}, the single hidden layer is extended to multiple layers. The Gaussian process with kernel characterized by neural network is illustrated in \Fref{fig:NNGP}. A similar work is \cite{snoek2015scalable}, where a neural network is firstly pre-trained, and Bayesian linear regression is then performed to the last layer, the finally trained model is used for Bayesian optimization.
 
 \subsection{Model Averaging to Improve the Quality of Uncertainty Prediction}\label{sec:deepensemble}
 
