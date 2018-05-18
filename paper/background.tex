@@ -45,7 +45,7 @@ Where $K_{\bm{\theta}}$ is the covariance matrix of the training input calculate
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=\columnwidth]{./img/nn1.pdf}
-    \caption{Architecture of the Gaussian process model with kernel characterized by deep neural network}
+    \caption{Architecture of the Gaussian process model with kernel characterized by neural network}
     \label{fig:NNGP}
 \end{figure}
 
@@ -94,7 +94,6 @@ where $\bm{\theta}$ is the vector containing $\sigma_p$, $\sigma_n$ and the para
 % XXX: the loss function for the
 It can be seen that GP model can be constructed from a finite feature map. Neural network (NN) can provide effective feature representations, it is thus natural to use a neural network as the feature map $\phi$. In \cite{lazaro2010marginalized}, a neural network with one hidden layer is proposed as the feature map $\phi(\bm{x})$. The weights of the neural network are obtained by maximizing the likelihood function in \eqref{eq:DegenerateGPloglikelihood} with gradient back-propagation. In \cite{huang2015scalable}, the single hidden layer is extended to multiple layers. The Gaussian process with kernel characterized by neural network is illustrated in \Fref{fig:NNGP}. A similar work is \cite{snoek2015scalable}, to perform Bayesian optimization, a neural network is firstly pre-trained, and Bayesian linear regression is then performed to the last layer.
 
-% \paragraph{Deep ensemble}
 \subsection{Model Averaging to Improve the Quality of Uncertainty Prediction}\label{sec:deepensemble}
 
 When probabilistic models are built from neural networks, a simple model averaging technique\cite{lazaro2010marginalized, huang2015scalable, lakshminarayanan2017simple} can significantly improve the quality of the estimated uncertainty.
