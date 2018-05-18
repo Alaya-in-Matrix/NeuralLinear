@@ -95,7 +95,7 @@ The last dataset we used is the simulation data of a real-world analog integrate
 The IGP, COGP, SCGP, GPRN-NPV and GPRN-MF models are compared. The algorithm settings for our MTNN-GP and the compared models are same with the settings described in \Fref{sec:sarcos}.
 
 
-The SMSE statistics are listed in \Fref{tab:smse_DAC} and the NLL statistics are given in \Fref{tab:nll_DAC}. Like the previous two datasets, the MTNN-GP model gives far better predictions than the IGP and other multi-output GP models. The SMSE of the COGP model is slightly better than the IGP model, but the NLL results are worse. The SCGP and the GPRN-NPV completely underfitted the dataset, they predict everything to zero.
+The SMSE statistics are listed in \Fref{tab:smse_DAC} and the NLL statistics are given in \Fref{tab:nll_DAC}. Like the previous two datasets, the MTNN-GP model gives far better predictions than the IGP and other multi-output GP models. The SMSE of the COGP model is slightly better than the IGP model, but the NLL results are worse. The SCGP and the GPRN-NPV completely underfitted the dataset, they predict everything to zero. Also, although the SMSE values of COGP is better than IGP, while SCGP gave constant prediction for all inputs, we found in \Fref{tab:nll_DAC} that the NLL of COGP is much worse than SCGP.
 
 \begin{table}[!htb]
     \centering
@@ -103,7 +103,7 @@ The SMSE statistics are listed in \Fref{tab:smse_DAC} and the NLL statistics are
     \label{tab:smse_DAC}
     \begin{tabular}{lllllll}
         \toprule
-        Output & MTNN-GP               &  IGP                  & COGP                  & SCGP          &  GPRN-NPV    & GPRN-MF            \\ \midrule
+        Output & MTNN-GP                        &  IGP                  & COGP                  & SCGP          &  GPRN-NPV    & GPRN-MF            \\ \midrule
         O1     &  \textbf{6.5e-4 $\pm$  3.5e-5} &  0.20 $\pm$  0.0019   &  0.19 $\pm$  0.0044   &  1  $\pm$  0  &  1  $\pm$  0 &  0.79 $\pm$  0.039 \\
         O2     &  \textbf{6.2e-4 $\pm$  3.9e-5} &  0.18 $\pm$  0.0088   &  0.15 $\pm$  0.0033   &  1  $\pm$  0  &  1  $\pm$  0 &  0.73 $\pm$  0.049 \\
         O3     &  \textbf{5.4e-4 $\pm$  5.4e-5} &  0.08 $\pm$  0.003    &  0.08 $\pm$  0.002    &  1  $\pm$  0  &  1  $\pm$  0 &  0.70 $\pm$  0.045 \\
@@ -129,7 +129,7 @@ The SMSE statistics are listed in \Fref{tab:smse_DAC} and the NLL statistics are
     \label{tab:nll_DAC}
     \begin{tabular}{lllllll}
         \toprule
-        Output & MTNN-GP                       & IGP                     & COGP                & SCGP                & GPRN-NPV & GPRN-MF \\ \midrule
+        Output & MTNN-GP                       & IGP                     & COGP                & SCGP                &  GPRN-NPV & GPRN-MF \\ \midrule
         O1     &  \textbf{-2.3  $\pm$  0.036}  &  0.43    $\pm$  0.0058  &  4.7  $\pm$  0.22   &  1.8  $\pm$  0.17   &  NA      & NA \\
         O2     &  \textbf{-2.5  $\pm$  0.024}  &  0.18    $\pm$  0.011   &  3.2  $\pm$  0.13   &  1.9  $\pm$  0.15   &  NA      & NA \\
         O3     &  \textbf{-2.4  $\pm$  0.032}  &  -0.1    $\pm$  0.0035  &  3.2  $\pm$  0.14   &  1.6  $\pm$  0.11   &  NA      & NA \\
