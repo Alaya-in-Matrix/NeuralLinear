@@ -2,7 +2,7 @@
 
 % TODO: report training time
 
-We implemented the multi-output Gaussian process model using Python 3.5.2. The gradient of the loss function in \eqref{eq:mo_likelihood} is calculated by \texttt{autograd} package \cite{maclaurin2015autograd}. We compared our model with several state-of-the-art multi-output GP models on three dataset. The datasets include two public available datasets and one dataset sampled from a real-world analog integrated circuit, as summarized in \Fref{tab:datasets}. All the datasets and the test code are provided in the supplementary materials, and will be made public upon publication.
+We implemented the multi-output Gaussian process model using Python 3.5.2. The gradient of the loss function in \eqref{eq:mo_likelihood} is calculated by \texttt{autograd} package \cite{maclaurin2015autograd}. We compared our model with independent GP and several state-of-the-art multi-output GP models on three datasets. The datasets include two publicly available datasets and one dataset sampled from a real-world analog integrated circuit, as summarized in \Fref{tab:datasets}. All the datasets and the test code are provided in the supplementary materials and will be made public upon publication.
 
 \begin{table}[!htb]
     \centering
@@ -23,7 +23,7 @@ We use standardized mean squared error (SMSE) and negative log likelihood (NLL) 
 
 The ENB dataset used is a small dataset with 768 samples, each sample has 8 inputs and 2 outputs. We use 700 samples as the training data, and the remaining 68 samples are used for testing. The dataset comes from simulations to 768 buildings \cite{spyromitros2016multi, tsanas2012accurate}. The 8 inputs are the building parameters like surface area and orientation, while the 2 outputs are the heating load and the cooling load\footnote{The dataset is available at http://mulan.sourceforge.net/datasets-mtr.html}.
 
-For our MTNN-GP model, we use a neural network with 2 shared layers, and 1 task-specific layer per output, $K$ is set to 5. All the layers have 100 hidden units with the tanh activation function. For this architecture, we need to learn more than 30 thousands of parameters using only 700 samples.
+For our MTNN-GP model, we use a neural network with 2 shared layers, and 1 task-specific layer per output, $K$ is set to 5. Each layer has 100 hidden units with the tanh activation function. For this architecture, we need to learn more than 30 thousands of parameters using only 700 samples.
 
 The MTNN-GP model is compared with independent GP modeling (IGP) using the \texttt{GPML} package\cite{rasmussen2010gaussian} and 4 multi-output Gaussian process models, including the collaborative multi-output Gaussian processes (COGP)\footnote{downloaded from https://github.com/trungngv/cogp} proposed in \cite{nguyen2014collaborative}, the sparse convolved Gaussian processes (SCGP)\footnote{downloaded from https://github.com/SheffieldML/multigp} method proposed in \cite{alvarez2009sparse}, and the Gaussian process regression network with nonparametric variational inference and mean-field inference methods\footnote{downloaded from https://github.com/trungngv/gprn}(GPRN-NPV and GPRN-MF) \cite{nguyen2013efficient}. For the independent GP (IGP), the ARD squared-exponential kernel function is used. For other methods, we use the default configurations of the corresponding open source packages, except that we used 200 inducing points for the COGP model instead of using the default 500 inducing points.
 
@@ -67,7 +67,7 @@ The SMSE and NLL statistics are given in \Fref{tab:result_enb}. The GPRN-NPV and
     \end{tabular}
 \end{table}
 
-We use the SARCOS dataset\footnote{available at http://www.gaussianprocess.org/gpml/data/} to test the scalability of our model for large and high dimensional dataset. The dataset comes from a robot inverse dynamic model, the whole dataset contains 48933 samples. Each sample has 21 inputs (the joint positions, joint velocities and joint accelerations) and 7 targets (seven joint torques). 44484 samples are used as the training set, and the remaining 4449 samples are used as the testing data. We select the 4-th and 7-th torques as the two outputs, which is the same setting as \cite{nguyen2014collaborative} and \cite{NIPS2015_5665}. We also compared our experimental results with the results reported by \cite{nguyen2014collaborative,NIPS2015_5665}.
+We use the SARCOS dataset\footnote{available at http://www.gaussianprocess.org/gpml/data/} to test the scalability of our model for large and high dimensional dataset. The dataset comes from a robot inverse dynamic model, the whole dataset contains 48933 samples. Each sample has 21 inputs (the joint positions, joint velocities, and joint accelerations) and 7 targets (seven joint torques). 44484 samples are used as the training set, and the remaining 4449 samples are used as the testing data. We select the 4-th and 7-th torques as the two outputs, which is the same setting as \cite{nguyen2014collaborative} and \cite{NIPS2015_5665}. We also compared our experimental results with the results reported by \cite{nguyen2014collaborative,NIPS2015_5665}.
 
 % For our MTNN-GP model, we used two layers with 100 hidden units as the shared layers, two layers with 100 hidden units are use
 For our MTNN-GP model, we use the same setting as we used for the ENB dataset. For the independent GP model, we used the FITC approximation with 200 inducing points to speedup the training. As the SCGP, GPRN-NPV and GPRN-MF cannot scale to such large dataset, in each run, randomly select 1000 points from the training set to train the two GPRN models and 2000 points to train the SCGP model. 
@@ -89,13 +89,13 @@ The reported results of the COGP model are different with our experimental resul
 %     \label{fig:sopamp}
 % \end{figure}
 
-The last dataset we used is the simulation data of a real-world analog integrated circuit. The circuit is an operational amplifier (OpAmp) with 10 design variables. We randomly sampled the 10 design variances, and used a commercial circuit simulator HSPICE to get the performances of the circuit. We considered the gain, unit gain frequency (UGF) and the phase margin (PM) of the OpAmp over 5 design corners (TT/FF/SS/SF/FS), so there are up to 15 performances considered. We gathered 10000 samples, and used 2000 points as the training set, the rest 8000 data points are used for testing. The dataset can be seen in the supplementary materials.
+The last dataset we used is the simulation data of a real-world analog integrated circuit. The circuit is an operational amplifier (OpAmp) with 10 design variables. We randomly sampled the 10 design variables and used a commercial circuit simulator HSPICE to get the performances of the circuit. We considered the gain, unit gain frequency (UGF) and the phase margin (PM) of the OpAmp over 5 design corners (TT/FF/SS/SF/FS), so there are up to 15 performances considered. We gathered 10000 samples and used 2000 points as the training set, the rest 8000 data points are used for testing. The dataset can be seen in the supplementary materials.
 
 
 The IGP, COGP, SCGP, GPRN-NPV and GPRN-MF models are compared. The algorithm settings for our MTNN-GP and the compared models are same with the settings described in \Fref{sec:sarcos}.
 
 
-The SMSE statistics are listed in \Fref{tab:smse_DAC} and the NLL statistics are given in \Fref{tab:nll_DAC}. Like the previous two datasets, the MTNN-GP model give far better predictions than the IGP and other multi-output GP models. The SMSE of the COGP model is slightly better than the IGP model, but the NLL results are worse. The SCGP and the GPRN-NPV completely underfitted the dataset, they predict everything to zero.
+The SMSE statistics are listed in \Fref{tab:smse_DAC} and the NLL statistics are given in \Fref{tab:nll_DAC}. Like the previous two datasets, the MTNN-GP model gives far better predictions than the IGP and other multi-output GP models. The SMSE of the COGP model is slightly better than the IGP model, but the NLL results are worse. The SCGP and the GPRN-NPV completely underfitted the dataset, they predict everything to zero.
 
 \begin{table}[!htb]
     \centering
