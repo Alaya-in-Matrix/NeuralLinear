@@ -35,13 +35,13 @@ The SMSE and NLL statistics are given in \Fref{tab:result_enb}. The GPRN-NPV and
     \label{tab:result_enb}
     \begin{tabular}{lllll}
         \toprule
-        Algo      & Output1(SMSE)          & Output2(SMSE)          & Output1(NLL)        & Output2(NLL)         \\ \midrule
-        MTNN-GP:  & 0.00155 $\pm$ 0.000159 & 0.00753 $\pm$ 0.00135  & 0.332 $\pm$ 0.0634  & 0.972 $\pm$ 0.107    \\
-        IGP:      & 0.00188 $\pm$ 0        & 0.00911 $\pm$ 0        & 0.538 $\pm$ 0       & 1.01  $\pm$ 0        \\
-        GOGP:     & 0.00597 $\pm$ 0.00088  & 0.0144  $\pm$ 0.000831 & 1.34  $\pm$ 0.159   & 2.08  $\pm$ 0.212    \\
-        SCGP:     & 0.708   $\pm$ 3.78e-05 & 1.21    $\pm$ 4.1e-05  & 1.56  $\pm$ 0.00363 & 1.66  $\pm$ 0.00063  \\
-        GPRN-NPV: & 6.87    $\pm$ 9.36e-16 & 8.63    $\pm$ 1.87e-15 & NA                  & NA                   \\
-        GPRN-MF:  & 0.359   $\pm$ 0.225    & 0.614   $\pm$ 0.339    & NA                  & NA                   \\
+        Algo     & Output1(SMSE)          & Output2(SMSE)          & Output1(NLL)        & Output2(NLL)         \\ \midrule
+        MTNN-GP  & 0.00155 $\pm$ 0.000159 & 0.00753 $\pm$ 0.00135  & 0.332 $\pm$ 0.0634  & 0.972 $\pm$ 0.107    \\
+        IGP      & 0.00188 $\pm$ 0        & 0.00911 $\pm$ 0        & 0.538 $\pm$ 0       & 1.01  $\pm$ 0        \\
+        GOGP     & 0.00597 $\pm$ 0.00088  & 0.0144  $\pm$ 0.000831 & 1.34  $\pm$ 0.159   & 2.08  $\pm$ 0.212    \\
+        SCGP     & 0.708   $\pm$ 3.78e-05 & 1.21    $\pm$ 4.1e-05  & 1.56  $\pm$ 0.00363 & 1.66  $\pm$ 0.00063  \\
+        GPRN-NPV & 6.87    $\pm$ 9.36e-16 & 8.63    $\pm$ 1.87e-15 & NA                  & NA                   \\
+        GPRN-MF  & 0.359   $\pm$ 0.225    & 0.614   $\pm$ 0.339    & NA                  & NA                   \\
         \bottomrule
     \end{tabular}
 \end{table}
@@ -55,12 +55,12 @@ The SMSE and NLL statistics are given in \Fref{tab:result_enb}. The GPRN-NPV and
     \begin{tabular}{lllll}
         \toprule
         Algo      & Output1(SMSE)                     & Output2(SMSE)                     & Output1(NLL)                   & Output2(NLL)           \\ \midrule
-        MTNN-GP:  & \textbf{0.00156 \(\pm\) 3.46e-05} & \textbf{0.00307 \(\pm\) 5.64e-05} & \textbf{0.804 \(\pm\) 0.0111}  & \textbf{-0.509 \(\pm\) 0.00813} \\
-        IGP:      & 0.0045  \(\pm\) 0.000153          & 0.00787 \(\pm\) 0.000257          & 1.06  \(\pm\) 0.00941          & -0.236 \(\pm\) 0.0124  \\
-        GOGP:     & 0.00852 \(\pm\) 0.000241          & 0.0149  \(\pm\) 0.000433          & 2.48  \(\pm\) 0.0577           & 2.4    \(\pm\) 0.097   \\
-        SCGP:     & 4.7     \(\pm\) 0.0245            & 3.39    \(\pm\) 0.0192            & 4.63  \(\pm\) 0.0128           & 2.87   \(\pm\) 0.011   \\
-        GPRN-NPV: & 4.99    \(\pm\) 0                 & 3.58    \(\pm\) 0                 & NA                             & NA    \\
-        GPRN-MF:  & 2.21    \(\pm\) 2.06              & 1.65    \(\pm\) 1.51              & NA                             & NA    \\ \midrule
+        MTNN-GP  & \textbf{0.00156 \(\pm\) 3.46e-05} & \textbf{0.00307 \(\pm\) 5.64e-05} & \textbf{0.804 \(\pm\) 0.0111}  & \textbf{-0.509 \(\pm\) 0.00813} \\
+        IGP      & 0.0045  \(\pm\) 0.000153          & 0.00787 \(\pm\) 0.000257          & 1.06  \(\pm\) 0.00941          & -0.236 \(\pm\) 0.0124  \\
+        GOGP     & 0.00852 \(\pm\) 0.000241          & 0.0149  \(\pm\) 0.000433          & 2.48  \(\pm\) 0.0577           & 2.4    \(\pm\) 0.097   \\
+        SCGP     & 4.7     \(\pm\) 0.0245            & 3.39    \(\pm\) 0.0192            & 4.63  \(\pm\) 0.0128           & 2.87   \(\pm\) 0.011   \\
+        GPRN-NPV & 4.99    \(\pm\) 0                 & 3.58    \(\pm\) 0                 & NA                             & NA    \\
+        GPRN-MF  & 2.21    \(\pm\) 2.06              & 1.65    \(\pm\) 1.51              & NA                             & NA    \\ \midrule
         COGP\cite{nguyen2014collaborative}            & 0.2631            & 0.0127  & 3.6   & 0.8302                 \\
         GPRN-AVI\cite{NIPS2015_5665}                  & $\approx$ 0.009   & > 0.009 & NA    & NA     \\
         \bottomrule
