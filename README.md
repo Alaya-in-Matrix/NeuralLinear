@@ -2,9 +2,7 @@
 
 ## About
 
-code for the paper "Multi-task Neural Network for Multi-output Gaussian Process Regression"
 
-Abstract:
 
 The last hidden layer of a neural network can be viewed as a finite feature
 map, from which a degenerate Gaussian process model can be built; on the other
